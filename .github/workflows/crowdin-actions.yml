@@ -1,10 +1,11 @@
 name: Crowdin Action
 
 on:
-  push:
-#    paths: [ 'app/src/main/res/values**', 'fastlane/metadata' ]
-    branches:
-      - 'develop'
+  workflow_dispatch:
+#   push:
+# #    paths: [ 'app/src/main/res/values**', 'fastlane/metadata' ]
+#     branches:
+#       - 'develop'
 
 concurrency:
   group: ${{ github.workflow }}
