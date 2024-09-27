@@ -81,7 +81,8 @@ jobs:
         env:
           KEYSTORE: ${{ secrets.KEYSTORE }}
         run: |
-          echo "$KEYSTORE" | base64 --decode > /home/runner/.android/release.keystore
+          echo "$KEYSTORE" | base64 --decode > /home/runner/.android/keystore.jks
+          echo "$KEYSTORE" | base64 --decode > /home/runner/work/KeyMapper/KeyMapper/app/keystore.jks
 
       - name: Install bundle
         run: bundle install
