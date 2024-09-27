@@ -43,13 +43,13 @@ jobs:
     - uses: actions/setup-java@v4
       with:
         distribution: temurin
-        java-version: 17
+        java-version: 11
 
     - uses: gradle/actions/setup-gradle@v4
       with:
-        gradle-version: 8.6
+        gradle-version: 8.4.2
         cache-encryption-key: ${{ secrets.GradleEncryptionKey }}
-    - run: gradle build --configuration-cache
+    - run: gradle build 
 
       # 签名apk
     - uses: r0adkll/sign-android-release@v1
