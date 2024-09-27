@@ -1,88 +1,118 @@
-name: Release
+name: Testing - build and release app
 
-# 触发条件: 这里是push以”v“开头的tag触发
 on:
   workflow_dispatch:
   # push:
-  #   # 根据branch或者tags来触发
   #   branches:
-  #     - main
+  #     - 'develop'
 
-  #   tags:
-  #     - "v*"
-  #   # 忽略的标签类型，不触发构建流程(和tags不能同时写)
-  #   # tags-ignore:
-  #   #   - "d*"
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
 
-# strategy:
-  # 矩阵使用: ${{ matrix.os }}
-  # 下面两个矩阵，会代码就会执行 2 * 3 = 6次
-  # matrix:
-  #  os: [ubuntu-16.04, ubuntu-18.04]
-  #  node: [6, 8, 10]
-
-# 一次持续集成的运行，可以完成多个任务(下面就build)
 jobs:
-  builds:
-    # 构建的系统(ubuntu、windows、macos)
+  style:
+    name: Code style check
     runs-on: ubuntu-latest
-
-    # 可以依赖其他job
-    # needs: xxxJob、[job1, job2]
-
-    # 构建权限，ncipollo/release-action需要使用
-    permissions:
-      contents: write
-
-    # 操作步骤(按顺序执行)
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      # 拉取仓库代码
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
-    - uses: actions/checkout@v4
-    - uses: actions/setup-java@v4
-      with:
-        distribution: temurin
-        java-version: 17
+      - name: set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'oracle'
+          java-version: 17
+          cache: 'gradle'
 
-    - uses: gradle/actions/setup-gradle@v4
-      with:
-        gradle-version: 8.6
-        cache-encryption-key: ${{ secrets.GradleEncryptionKey }}
-    - run: gradle build 
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
 
-      # 签名apk
-    - uses: r0adkll/sign-android-release@v1
-      name: Sign app APK
-      id: sign_app
-      with:
-          releaseDirectory: app/build/outputs/apk/release
-          signingKeyBase64: ${{ secrets.SIGNING_KEY }}
-          alias: ${{ secrets.ALIAS }}
-          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
-          keyPassword: ${{ secrets.KEY_PASSWORD }}
-        # 还能设置build-tools version，29.0.3好像不支持了
-      env:
-          # override default build-tools version (29.0.3) -- optional
-          BUILD_TOOLS_VERSION: "34.0.0"
+      - name: Ktlint check
+        run: ./gradlew ktlintCheck
 
-      # build-tools可能不存在，用step查看下支持哪些
-    - run: ls /usr/local/lib/android/sdk/build-tools/
+  apk:
+    name: Generate and upload APK to Discord
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      # 重命名apk
-      # GITHUB_REF_NAME是“触发workflow的分支或tag名称”
-    - run: mv ${{steps.sign_app.outputs.signedReleaseFile}} fundark_$GITHUB_REF_NAME.apk
-        # 可以指定shell命令的执行目录
-        # working-directory: ./temp
-        # 只当shell的类型
-        # shell: bash
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
-      # 发布
-    - uses: ncipollo/release-action@v1
-      with:
-          # 要包含到Release Assets中的文件
-          artifacts: "*.apk"
-          # 会使用一个临时的token来创建Release
-          token: ${{ github.token }}
-          # 自动生成一些变化列表之类的内容。
-          generateReleaseNotes: true
+      - uses: christian-draeger/write-properties@1.0.1
+        with:
+          path: app/version.properties
+          property: VERSION_NUM
+          value: ${{ github.run_number }}
+
+      - name: set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'oracle'
+          java-version: 17
+          cache: 'gradle'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+
+      - name: set up Ruby for fastlane
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+
+      - name: Create debug keystore
+        env:
+          KEYSTORE: ${{ secrets.KEYSTORE }}
+        run: |
+          echo "$KEYSTORE" | base64 --decode > /home/runner/.android/release.keystore
+
+      - name: Install bundle
+        run: bundle install
+
+      - name: Set Git credentials
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email noreply@github.com
+
+      - name: Build apk with fastlane
+        run: bundle exec fastlane prod
+
+      - name: set apk name env
+        run: echo "APK_NAME=$(basename app/build/outputs/apk/ci/*.apk .apk)" >> $GITHUB_ENV
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.APK_NAME }}
+          path: app/build/outputs/apk/ci/${{ env.APK_NAME }}.apk
+
+      # - name: Upload to Discord
+      #   uses: sinshutu/upload-to-discord@v2.0.0
+      #   env:
+      #     DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+      #   with:
+      #     args: app/build/outputs/apk/ci/${{ env.APK_NAME }}.apk
+
+      # - name: Report build status to Discord
+      #   uses: sarisia/actions-status-discord@v1
+      #   if: failure()
+      #   with:
+      #     title: "Build apk"
+      #     webhook: ${{ secrets.DISCORD_BUILD_STATUS_WEBHOOK }}
