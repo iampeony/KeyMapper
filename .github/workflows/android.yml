@@ -79,7 +79,8 @@ jobs:
 
       - name: Create debug keystore
         env:
-          KEYSTORE: ${{ secrets.KEYSTORE }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           echo "$KEYSTORE" | base64 --decode > /home/runner/.android/keystore.jks
           echo "$KEYSTORE" | base64 --decode > /home/runner/work/KeyMapper/KeyMapper/app/keystore.jks
