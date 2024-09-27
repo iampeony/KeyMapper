@@ -38,49 +38,48 @@ jobs:
     steps:
 
       # 拉取仓库代码
-      - uses: actions/checkout@v3
 
-      # 设置Java运行环境(temurin是开源jdk)，可以设置为: 1.8
-      - uses: actions/setup-java@v3
-        with:
-          distribution: temurin
-          java-version: 17
+    - uses: actions/checkout@v4
+    - uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: 17
 
-      # 设置gradle环境(比如: 6.5)、打包命令
-      - uses: gradle/gradle-build-action@v2
-        with:
-          gradle-version: 8.6
-          arguments: assembleRelease
+    - uses: gradle/actions/setup-gradle@v4
+      with:
+        gradle-version: 8.6
+        cache-encryption-key: ${{ secrets.GradleEncryptionKey }}
+    - run: gradle build --configuration-cache
 
       # 签名apk
-      - uses: r0adkll/sign-android-release@v1
-        name: Sign app APK
-        id: sign_app
-        with:
+    - uses: r0adkll/sign-android-release@v1
+      name: Sign app APK
+      id: sign_app
+      with:
           releaseDirectory: app/build/outputs/apk/release
           signingKeyBase64: ${{ secrets.SIGNING_KEY }}
           alias: ${{ secrets.ALIAS }}
           keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
         # 还能设置build-tools version，29.0.3好像不支持了
-        env:
+      env:
           # override default build-tools version (29.0.3) -- optional
           BUILD_TOOLS_VERSION: "34.0.0"
 
       # build-tools可能不存在，用step查看下支持哪些
-      - run: ls /usr/local/lib/android/sdk/build-tools/
+    - run: ls /usr/local/lib/android/sdk/build-tools/
 
       # 重命名apk
       # GITHUB_REF_NAME是“触发workflow的分支或tag名称”
-      - run: mv ${{steps.sign_app.outputs.signedReleaseFile}} fundark_$GITHUB_REF_NAME.apk
+    - run: mv ${{steps.sign_app.outputs.signedReleaseFile}} fundark_$GITHUB_REF_NAME.apk
         # 可以指定shell命令的执行目录
         # working-directory: ./temp
         # 只当shell的类型
         # shell: bash
 
       # 发布
-      - uses: ncipollo/release-action@v1
-        with:
+    - uses: ncipollo/release-action@v1
+      with:
           # 要包含到Release Assets中的文件
           artifacts: "*.apk"
           # 会使用一个临时的token来创建Release
