@@ -47,7 +47,7 @@ jobs:
 
     - uses: gradle/actions/setup-gradle@v4
       with:
-        gradle-version: 8.4.2
+        gradle-version: 8.6
         cache-encryption-key: ${{ secrets.GradleEncryptionKey }}
     - run: gradle build 
 
