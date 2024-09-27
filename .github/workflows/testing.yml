@@ -1,9 +1,10 @@
 name: Testing - build and release app
 
 on:
-  push:
-    branches:
-      - 'develop'
+  workflow_dispatch:
+  # push:
+  #   branches:
+  #     - 'develop'
 
 concurrency:
   group: ${{ github.workflow }}
@@ -102,16 +103,16 @@ jobs:
           name: ${{ env.APK_NAME }}
           path: app/build/outputs/apk/ci/${{ env.APK_NAME }}.apk
 
-      - name: Upload to Discord
-        uses: sinshutu/upload-to-discord@v2.0.0
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-        with:
-          args: app/build/outputs/apk/ci/${{ env.APK_NAME }}.apk
+      # - name: Upload to Discord
+      #   uses: sinshutu/upload-to-discord@v2.0.0
+      #   env:
+      #     DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+      #   with:
+      #     args: app/build/outputs/apk/ci/${{ env.APK_NAME }}.apk
 
-      - name: Report build status to Discord
-        uses: sarisia/actions-status-discord@v1
-        if: failure()
-        with:
-          title: "Build apk"
-          webhook: ${{ secrets.DISCORD_BUILD_STATUS_WEBHOOK }}
+      # - name: Report build status to Discord
+      #   uses: sarisia/actions-status-discord@v1
+      #   if: failure()
+      #   with:
+      #     title: "Build apk"
+      #     webhook: ${{ secrets.DISCORD_BUILD_STATUS_WEBHOOK }}
