@@ -30,9 +30,9 @@ lane :prod do |options|
     whats_new = File.read("../app/src/main/assets/whats-new.txt")
     File.write("metadata/android/en-US/changelogs/" + version_code + ".txt", whats_new)
 
-    gradle(task: "assembleDebug")
+    #gradle(task: "assembleDebug")
     gradle(task: "assembleRelease")
-    gradle(task: "bundleRelease")
+    #gradle(task: "bundleRelease")
 
     apk_path_debug="app/build/outputs/apk/debug/keymapper-" + version_name + "-debug.apk"
     apk_path_release="app/build/outputs/apk/release/keymapper-" + version_name + ".apk"
