@@ -101,6 +101,12 @@ jobs:
         run: echo "APK_NAME=$(basename app/build/outputs/apk/ci/*.apk .apk)" >> $GITHUB_ENV
 
 
+      - name: Generate release tag
+        id: tag
+        run: |
+         echo "::set-output name=release_tag::Build_$(date +"%Y.%m.%d_%H-%M")"
+
+
       - name: Create Release
         id: create_release
         uses: softprops/action-gh-release@master
@@ -108,6 +114,7 @@ jobs:
           files: |
            app/build/outputs/apk/**
           name: ${{ github.ref }}
+          tag_name: ${{ steps.tag.outputs.release_tag }}
           draft: false
           prerelease: false
         env:
