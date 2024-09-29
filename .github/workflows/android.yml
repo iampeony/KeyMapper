@@ -108,7 +108,6 @@ jobs:
           files: |
            app/build/outputs/apk/**
           name: ${{ github.ref }}
-          tag_name: ${{ github.ref }}
           draft: false
           prerelease: false
         env:
