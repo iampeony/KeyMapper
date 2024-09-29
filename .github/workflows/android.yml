@@ -100,6 +100,20 @@ jobs:
       - name: set apk name env
         run: echo "APK_NAME=$(basename app/build/outputs/apk/ci/*.apk .apk)" >> $GITHUB_ENV
 
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@master
+        with:
+          files: |
+           app/build/outputs/apk/**
+          name: ${{ github.ref }}
+          tag_name: ${{ github.ref }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
