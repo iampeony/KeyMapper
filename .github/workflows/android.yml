@@ -1,40 +1,136 @@
-name: Android App Compile
+name: Testing - build and release app
 
 on:
   workflow_dispatch:
+  # push:
+  #   branches:
+  #     - 'develop'
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
 
 jobs:
-  build:
+  style:
+    name: Code style check
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Set up Java
-        uses: actions/setup-java@v2
+      - uses: actions/cache@v3
         with:
-          java-version: '17'
-          distribution: 'adopt'
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - name: set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'oracle'
+          java-version: 17
+          cache: 'gradle'
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v2
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+      - name: Ktlint check
+        run: ./gradlew ktlintCheck
 
-      - name: Build freeRelease APK
-        run: ./gradlew assembleFreeRelease
+  apk:
+    name: Generate and upload APK to Discord
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Find app module name
-        id: find_app_module
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - uses: christian-draeger/write-properties@1.0.1
+        with:
+          path: app/version.properties
+          property: VERSION_NUM
+          value: ${{ github.run_number }}
+
+      - name: set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'oracle'
+          java-version: 17
+          cache: 'gradle'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+
+      - name: set up Ruby for fastlane
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+
+      - name: Create debug keystore
+        env:
+          KEYSTORE: ${{ secrets.KEYSTORE }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          APP_MODULE=$(grep -rl "com.android.application" . | xargs -I {} dirname {} | head -n 1 | cut -c 3-)
-          echo "app_module=$APP_MODULE" >> $GITHUB_OUTPUT
+          echo "$KEYSTORE" | base64 --decode > /home/runner/.android/keystore.jks
+          echo "$KEYSTORE" | base64 --decode > /home/runner/work/KeyMapper/KeyMapper/app/keystore.jks
+          echo "$KEYSTORE" | base64 --decode > app/keystore.jks
+      - name: Install bundle
+        run: bundle install
+
+      - name: Set Git credentials
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email noreply@github.com
+      - name: Build apk with fastlane
+        run: bundle exec fastlane prod
+
+      - name: set apk name env
+        run: echo "APK_NAME=$(basename app/build/outputs/apk/ci/*.apk .apk)" >> $GITHUB_ENV
+
+
+      - name: Generate release tag
+        id: tag
+        run: |
+         echo "::set-output name=release_tag::Build_$(date +"%Y.%m.%d_%H-%M")"
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@master
+        with:
+          files: |
+           app/build/outputs/apk/**
+          name: ${{ github.ref }}
+          tag_name: ${{ steps.tag.outputs.release_tag }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload APK
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
-          name: free-release-apk
-          path: ${{ steps.find_app_module.outputs.app_module }}/build/outputs/apk/free/release/*.apk
-    
+          name: ${{ env.APK_NAME }}
+          path: app/build/outputs/apk/ci/${{ env.APK_NAME }}.apk
+
+      # - name: Upload to Discord
+      #   uses: sinshutu/upload-to-discord@v2.0.0
+      #   env:
+      #     DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+      #   with:
+      #     args: app/build/outputs/apk/ci/${{ env.APK_NAME }}.apk
+
+      # - name: Report build status to Discord
+      #   uses: sarisia/actions-status-discord@v1
+      #   if: failure()
+      #   with:
+      #     title: "Build apk"
+      #     webhook: ${{ secrets.DISCORD_BUILD_STATUS_WEBHOOK }}
