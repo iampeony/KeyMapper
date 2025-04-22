@@ -91,8 +91,28 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build free release APK
-        run: ./gradlew assembleFreeRelease
+      # - name: Build free release APK
+      #   run: ./gradlew assembleFreeRelease
+
+
+      - name: Debug environment variables
+        run: |
+          echo "KEYSTORE_PASSWORD: $KEYSTORE_PASSWORD"
+          echo "KEY_ALIAS: $KEY_ALIAS"
+          echo "KEY_PASSWORD: $KEY_PASSWORD"
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
+
+      - name: Build and sign APK
+        run: ./gradlew assembleFreeRelease --info
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
