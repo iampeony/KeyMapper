@@ -70,10 +70,10 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v2
 
-      - name: set up Ruby for fastlane
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.3'
+      # - name: set up Ruby for fastlane
+      #   uses: ruby/setup-ruby@v1
+      #   with:
+      #     ruby-version: '3.3'
 
       - name: Create debug keystore
         env:
@@ -84,42 +84,58 @@ jobs:
           echo "$KEYSTORE" | base64 --decode > /home/runner/.android/keystore.jks
           echo "$KEYSTORE" | base64 --decode > /home/runner/work/KeyMapper/KeyMapper/app/keystore.jks
           echo "$KEYSTORE" | base64 --decode > app/keystore.jks
-      - name: Install bundle
-        run: bundle install
-
-      - name: Set Git credentials
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email noreply@github.com
-      - name: Build apk with fastlane
-        run: bundle exec fastlane prod
-
-      - name: set apk name env
-        run: echo "APK_NAME=$(basename app/build/outputs/apk/ci/*.apk .apk)" >> $GITHUB_ENV
 
 
-      - name: Generate release tag
-        id: tag
-        run: |
-         echo "::set-output name=release_tag::Build_$(date +"%Y.%m.%d_%H-%M")"
-      - name: Create Release
-        id: create_release
-        uses: softprops/action-gh-release@master
-        with:
-          files: |
-           app/build/outputs/apk/**
-          name: ${{ github.ref }}
-          tag_name: ${{ steps.tag.outputs.release_tag }}
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build free release APK
+        run: ./gradlew assembleFreeRelease
 
       - name: Upload APK
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.APK_NAME }}
-          path: app/build/outputs/apk/ci/${{ env.APK_NAME }}.apk
+          name: free-release-apk
+          path: app/build/outputs/apk/free/release/    
+          
+      # - name: Install bundle
+      #   run: bundle install
+
+      # - name: Set Git credentials
+      #   run: |
+      #     git config user.name "GitHub Actions"
+      #     git config user.email noreply@github.com
+      # - name: Build apk with fastlane
+      #   run: bundle exec fastlane prod
+
+      # - name: set apk name env
+      #   run: echo "APK_NAME=$(basename app/build/outputs/apk/ci/*.apk .apk)" >> $GITHUB_ENV
+
+
+      # - name: Generate release tag
+      #   id: tag
+      #   run: |
+      #    echo "::set-output name=release_tag::Build_$(date +"%Y.%m.%d_%H-%M")"
+      # - name: Create Release
+      #   id: create_release
+      #   uses: softprops/action-gh-release@master
+      #   with:
+      #     files: |
+      #      app/build/outputs/apk/**
+      #     name: ${{ github.ref }}
+      #     tag_name: ${{ steps.tag.outputs.release_tag }}
+      #     draft: false
+      #     prerelease: false
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # - name: Upload APK
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: ${{ env.APK_NAME }}
+      #     path: app/build/outputs/apk/ci/${{ env.APK_NAME }}.apk
 
       # - name: Upload to Discord
       #   uses: sinshutu/upload-to-discord@v2.0.0
