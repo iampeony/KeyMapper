@@ -54,7 +54,7 @@ lane :prod do
 
 #   Release the free build to GitHub because billing only works if signed by Google Play
     gradle(task: "assembleFreeRelease")
-    gradle(task: "bundleProRelease")
+    #gradle(task: "bundleProRelease")
 
     apk_path_release="app/build/outputs/apk/free/release/keymapper-" + version_name + ".apk"
 
