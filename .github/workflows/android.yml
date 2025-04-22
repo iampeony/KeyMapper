@@ -1,0 +1,40 @@
+name: Android App Compile
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          java-version: '17'
+          distribution: 'adopt'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build freeRelease APK
+        run: ./gradlew assembleFreeRelease
+
+      - name: Find app module name
+        id: find_app_module
+        run: |
+          APP_MODULE=$(grep -rl "com.android.application" . | xargs -I {} dirname {} | head -n 1 | cut -c 3-)
+          echo "app_module=$APP_MODULE" >> $GITHUB_OUTPUT
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v2
+        with:
+          name: free-release-apk
+          path: ${{ steps.find_app_module.outputs.app_module }}/build/outputs/apk/free/release/*.apk
+    
