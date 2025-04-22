@@ -95,7 +95,7 @@ jobs:
         run: ./gradlew assembleFreeRelease
 
       - name: Upload APK
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: free-release-apk
           path: app/build/outputs/apk/free/release/    
