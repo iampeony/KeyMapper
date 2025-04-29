@@ -225,4 +225,19 @@ abstract class BaseMainActivity : AppCompatActivity() {
         originalFileUri = fileUri
         saveFileLauncher.launch(fileName)
     }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        if (hasFocus) {
+            adaptDevice()
+        }
+        super.onWindowFocusChanged(hasFocus)
+    }
+    fun adaptDevice() {
+        val rect = Rect()
+        window.decorView.getWindowVisibleDisplayFrame(rect)
+        val mWidth = rect.width()
+        val mHeight = rect.height()
+        getApplicationContext().getResources().getDisplayMetrics().widthPixels = mWidth
+        getApplicationContext().getResources().getDisplayMetrics().heightPixels = mHeight
+    }
 }
