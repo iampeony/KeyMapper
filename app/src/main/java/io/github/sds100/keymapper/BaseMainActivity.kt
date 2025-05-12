@@ -42,6 +42,9 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import android.view.View
+import android.view.WindowManager
+import android.graphics.Rect
 
 /**
  * Created by sds100 on 19/02/2020.
@@ -225,4 +228,21 @@ abstract class BaseMainActivity : AppCompatActivity() {
         originalFileUri = fileUri
         saveFileLauncher.launch(fileName)
     }
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) {
+            adaptDevice()
+        }
+    }
+
+    fun adaptDevice() {
+        window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
+        val rect = Rect()
+        window.decorView.getWindowVisibleDisplayFrame(rect)
+        val mWidth = rect.width()
+        val mHeight = rect.height()
+        applicationContext.resources.displayMetrics.widthPixels = mWidth
+        applicationContext.resources.displayMetrics.heightPixels = mHeight
+    }    
 }
