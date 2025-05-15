@@ -921,7 +921,7 @@ Kaydedilmiş ses dosyalarını ayarlardan silebilirsiniz.</string>
     <string name="action_cat_keyboard">Klavye</string>
     <string name="action_cat_apps">Uygulamalar</string>
     <string name="action_cat_input">Giriş</string>
-    <string name="action_cat_camera_sound">Kamera ve Ses</string>
+<!--     <string name="action_cat_camera_sound">Kamera ve Ses</string> -->
     <string name="action_cat_connectivity">Bağlantı</string>
     <string name="action_cat_content">İçerik</string>
     <string name="action_cat_interface">Arayüz</string>
