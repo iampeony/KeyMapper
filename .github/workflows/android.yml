@@ -92,7 +92,7 @@ jobs:
         run: chmod +x gradlew
 
       # - name: Build free release APK
-      #   run: ./gradlew assembleFreeRelease
+      #   run: ./gradlew assembleRelease
 
 
       - name: Debug environment variables
@@ -107,7 +107,7 @@ jobs:
 
 
       - name: Build and sign APK
-        run: ./gradlew assembleFreeRelease --info
+        run: ./gradlew assembleRelease --info
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
@@ -117,7 +117,7 @@ jobs:
       - name: Find the APK file
         id: find_apk
         run: |
-          apk_file=$(find app/build/outputs/apk/free/release -name "keymapper-*.apk" | head -n 1)
+          apk_file=$(find app/build/outputs/apk/release -name "keymapper-*.apk" | head -n 1)
           echo "::set-output name=apk_path::$apk_file"
           echo "::set-output name=apk_name::$(basename $apk_file)"
 
