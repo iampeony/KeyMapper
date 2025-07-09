@@ -46,7 +46,6 @@ class ChooseActionViewModel @Inject constructor(
             ActionCategory.INPUT,
             ActionCategory.APPS,
             ActionCategory.FLASHLIGHT,
-            ActionCategory.CONTENT,
             ActionCategory.NAVIGATION,
             ActionCategory.VOLUME,
             ActionCategory.DISPLAY,
@@ -205,8 +204,6 @@ class ChooseActionViewModel @Inject constructor(
             ActionId.REWIND_PACKAGE,
             ActionId.REWIND,
             -> R.string.action_rewind_message
-
-            ActionId.MOVE_CURSOR_TO_END -> R.string.action_move_to_end_of_text_message
 
             ActionId.TOGGLE_KEYBOARD,
             ActionId.SHOW_KEYBOARD,

@@ -1,21 +1,5 @@
-Fix for Minecraft 1.21.80!
+⌨️ Action to move cursor to previous/next character, word, line, paragraph, or page.
 
-⏰ Time constraints.
-
-🔎 Action to interact with app elements.
-
-Other bug fixes.
-
-== 3.0 features ==
-
-🫧 Floating Buttons: you can create custom on-screen buttons to trigger key maps.
-
-🗂️ Grouping key maps into folders with shared constraints.
-
-🔦 Change the flashlight brightness. Tip: use the constraint for when the flashlight is showing to remap your volume buttons to change the brightness.
-
-🛜 Send HTTP requests with a new action.
-
-❤️ Many improvements to make your key mapping experience more enjoyable.
+Many other bug fixes and optimisations.
 
 See all the changes at http://changelog.keymapper.club.

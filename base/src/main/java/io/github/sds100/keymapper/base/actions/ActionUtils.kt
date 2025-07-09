@@ -96,7 +96,6 @@ object ActionUtils {
         ActionCategory.INPUT -> R.string.action_cat_input
         ActionCategory.FLASHLIGHT -> R.string.action_cat_flashlight
         ActionCategory.CONNECTIVITY -> R.string.action_cat_connectivity
-        ActionCategory.CONTENT -> R.string.action_cat_content
         ActionCategory.INTERFACE -> R.string.action_cat_interface
         ActionCategory.TELEPHONY -> R.string.action_cat_telephony
         ActionCategory.DISPLAY -> R.string.action_cat_display
@@ -119,6 +118,8 @@ object ActionUtils {
         ActionId.APP -> ActionCategory.APPS
         ActionId.APP_SHORTCUT -> ActionCategory.APPS
         ActionId.INTENT -> ActionCategory.APPS
+        ActionId.URL -> ActionCategory.APPS
+        ActionId.HTTP_REQUEST -> ActionCategory.APPS
 
         ActionId.TOGGLE_WIFI -> ActionCategory.CONNECTIVITY
         ActionId.ENABLE_WIFI -> ActionCategory.CONNECTIVITY
@@ -137,6 +138,7 @@ object ActionUtils {
         ActionId.ENABLE_AUTO_BRIGHTNESS -> ActionCategory.DISPLAY
         ActionId.INCREASE_BRIGHTNESS -> ActionCategory.DISPLAY
         ActionId.DECREASE_BRIGHTNESS -> ActionCategory.DISPLAY
+        ActionId.SCREENSHOT -> ActionCategory.DISPLAY
 
         ActionId.TOGGLE_AUTO_ROTATE -> ActionCategory.INTERFACE
         ActionId.ENABLE_AUTO_ROTATE -> ActionCategory.INTERFACE
@@ -209,7 +211,10 @@ object ActionUtils {
         ActionId.ENABLE_AIRPLANE_MODE -> ActionCategory.CONNECTIVITY
         ActionId.DISABLE_AIRPLANE_MODE -> ActionCategory.CONNECTIVITY
 
-        ActionId.MOVE_CURSOR_TO_END -> ActionCategory.KEYBOARD
+        ActionId.TEXT_CUT -> ActionCategory.KEYBOARD
+        ActionId.TEXT_COPY -> ActionCategory.KEYBOARD
+        ActionId.TEXT_PASTE -> ActionCategory.KEYBOARD
+        ActionId.MOVE_CURSOR -> ActionCategory.KEYBOARD
         ActionId.TOGGLE_KEYBOARD -> ActionCategory.KEYBOARD
         ActionId.SHOW_KEYBOARD -> ActionCategory.KEYBOARD
         ActionId.HIDE_KEYBOARD -> ActionCategory.KEYBOARD
@@ -221,13 +226,6 @@ object ActionUtils {
         ActionId.POWER_ON_OFF_DEVICE -> ActionCategory.INTERFACE
         ActionId.SECURE_LOCK_DEVICE -> ActionCategory.INTERFACE
         ActionId.SHOW_POWER_MENU -> ActionCategory.INTERFACE
-
-        ActionId.TEXT_CUT -> ActionCategory.CONTENT
-        ActionId.TEXT_COPY -> ActionCategory.CONTENT
-        ActionId.TEXT_PASTE -> ActionCategory.CONTENT
-        ActionId.SCREENSHOT -> ActionCategory.CONTENT
-        ActionId.URL -> ActionCategory.CONTENT
-        ActionId.HTTP_REQUEST -> ActionCategory.CONTENT
 
         ActionId.PHONE_CALL -> ActionCategory.TELEPHONY
         ActionId.ANSWER_PHONE_CALL -> ActionCategory.TELEPHONY
@@ -317,7 +315,7 @@ object ActionUtils {
         ActionId.ENABLE_NFC -> R.string.action_nfc_enable
         ActionId.DISABLE_NFC -> R.string.action_nfc_disable
         ActionId.TOGGLE_NFC -> R.string.action_nfc_toggle
-        ActionId.MOVE_CURSOR_TO_END -> R.string.action_move_to_end_of_text
+        ActionId.MOVE_CURSOR -> R.string.action_move_cursor
         ActionId.TOGGLE_KEYBOARD -> R.string.action_toggle_keyboard
         ActionId.SHOW_KEYBOARD -> R.string.action_show_keyboard
         ActionId.HIDE_KEYBOARD -> R.string.action_hide_keyboard
@@ -436,7 +434,7 @@ object ActionUtils {
         ActionId.ENABLE_NFC -> R.drawable.ic_outline_nfc_24
         ActionId.DISABLE_NFC -> R.drawable.ic_nfc_off
         ActionId.TOGGLE_NFC -> R.drawable.ic_outline_nfc_24
-        ActionId.MOVE_CURSOR_TO_END -> R.drawable.ic_cursor
+        ActionId.MOVE_CURSOR -> R.drawable.ic_cursor
         ActionId.TOGGLE_KEYBOARD -> R.drawable.ic_outline_keyboard_24
         ActionId.SHOW_KEYBOARD -> R.drawable.ic_outline_keyboard_24
         ActionId.HIDE_KEYBOARD -> R.drawable.ic_outline_keyboard_hide_24
@@ -650,7 +648,7 @@ object ActionUtils {
             ActionId.TOGGLE_AIRPLANE_MODE,
             ActionId.ENABLE_AIRPLANE_MODE,
             ActionId.DISABLE_AIRPLANE_MODE,
-            -> Permission.ROOT
+            -> return listOf(Permission.ROOT)
 
             ActionId.SCREENSHOT -> if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
                 return listOf(Permission.ROOT)
@@ -665,8 +663,7 @@ object ActionUtils {
 
             ActionId.DISMISS_ALL_NOTIFICATIONS,
             ActionId.DISMISS_MOST_RECENT_NOTIFICATION,
-            ->
-                return listOf(Permission.NOTIFICATION_LISTENER)
+            -> return listOf(Permission.NOTIFICATION_LISTENER)
 
             ActionId.ANSWER_PHONE_CALL,
             ActionId.END_PHONE_CALL,
@@ -679,7 +676,7 @@ object ActionUtils {
                     return listOf(Permission.FIND_NEARBY_DEVICES)
                 }
 
-            else -> Unit
+            else -> return emptyList()
         }
 
         return emptyList()
@@ -759,7 +756,7 @@ object ActionUtils {
         ActionId.ENABLE_NFC -> Icons.Outlined.Nfc
         ActionId.DISABLE_NFC -> KeyMapperIcons.NfcOff
         ActionId.TOGGLE_NFC -> Icons.Outlined.Nfc
-        ActionId.MOVE_CURSOR_TO_END -> KeyMapperIcons.TextSelectEnd
+        ActionId.MOVE_CURSOR -> KeyMapperIcons.TextSelectEnd
         ActionId.TOGGLE_KEYBOARD -> Icons.Outlined.Keyboard
         ActionId.SHOW_KEYBOARD -> Icons.Outlined.Keyboard
         ActionId.HIDE_KEYBOARD -> Icons.Outlined.KeyboardHide
@@ -813,13 +810,11 @@ fun ActionData.canBeHeldDown(): Boolean = when (this) {
 fun ActionData.canUseImeToPerform(): Boolean = when (this) {
     is ActionData.InputKeyEvent -> !useShell
     is ActionData.Text -> true
-    is ActionData.MoveCursorToEnd -> true
     else -> false
 }
 
 fun ActionData.canUseShizukuToPerform(): Boolean = when (this) {
     is ActionData.InputKeyEvent -> true
-    is ActionData.MoveCursorToEnd -> true
     else -> false
 }
 
@@ -853,6 +848,7 @@ fun ActionData.isEditable(): Boolean = when (this) {
     is ActionData.PhoneCall,
     is ActionData.HttpRequest,
     is ActionData.InteractUiElement,
+    is ActionData.MoveCursor,
     -> true
 
     else -> false
