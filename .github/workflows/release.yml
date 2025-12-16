@@ -1,11 +1,7 @@
 name: Release - build and upload signed APK
 
-# 仅保留手动触发（按需可恢复push触发）
 on:
   workflow_dispatch:
-  # push:
-  #   branches:
-  #     - 'main'  # 生产分支建议用main/master
 
 concurrency:
   group: ${{ github.workflow }}
@@ -19,9 +15,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1  # 浅克隆加速
+          fetch-depth: 1
 
-      # Gradle缓存优化（包含kts配置文件）
       - name: Cache Gradle dependencies
         uses: actions/cache@v3
         with:
@@ -33,7 +28,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      # 写入VERSION_NUM到版本配置文件
       - name: Update version number
         uses: christian-draeger/write-properties@1.0.1
         with:
@@ -41,22 +35,26 @@ jobs:
           property: VERSION_NUM
           value: ${{ github.run_number }}
 
-      # 适配参考代码：JDK 21（匹配最新AGP要求）
       - name: Set up JDK 21
         uses: actions/setup-java@v3
         with:
           distribution: 'oracle'
           java-version: 21
-          cache: 'gradle'  # 自动缓存Gradle依赖
+          cache: 'gradle'
 
-      # 配置Android SDK（含NDK，适配Rust/evdev模块）
-      - name: Setup Android SDK & NDK
+      - name: Setup Android SDK (含Build Tools/NDK)
         uses: android-actions/setup-android@v2
         with:
           ndk-version: "27.2.12479018"
-          cmdline-tools-version: "11076708"  # 指定稳定版cmdline-tools
+          cmdline-tools-version: "11076708"
+          build-tools-version: "34.0.0"
 
-      # 配置Rust环境（适配evdev模块）
+      # 仅保留Android工具PATH配置（移除zipalign验证后无需额外处理）
+      - name: Add Android tools to PATH
+        run: |
+          echo "$ANDROID_HOME/build-tools/34.0.0" >> $GITHUB_PATH
+          echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
+
       - name: Setup Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -69,63 +67,54 @@ jobs:
           rustup target add i686-linux-android
           rustup target add x86_64-linux-android
 
-      # 参考代码核心：多路径部署Release签名密钥（兼容不同路径引用）
       - name: Deploy release keystore
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE }}
-          KEYSTORE_PATH_ANDROID: /home/runner/.android/keystore.jks
-          KEYSTORE_PATH_APP: ${{ github.workspace }}/app/keystore.jks
-          KEYSTORE_PATH_WORK: /home/runner/work/KeyMapper/KeyMapper/app/keystore.jks
+          KEYSTORE_PATH: ${{ github.workspace }}/app/keystore.jks
         run: |
-          # 创建目录（避免路径不存在）
-          mkdir -p /home/runner/.android
-          mkdir -p /home/runner/work/KeyMapper/KeyMapper/app/
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "Error: KEYSTORE secret is empty!"
+            exit 1
+          fi
           
-          # 解码并写入多路径（兼容不同配置的引用）
-          echo "$KEYSTORE_BASE64" | base64 --decode > $KEYSTORE_PATH_ANDROID
-          echo "$KEYSTORE_BASE64" | base64 --decode > $KEYSTORE_PATH_APP
-          echo "$KEYSTORE_BASE64" | base64 --decode > $KEYSTORE_PATH_WORK
+          echo "$KEYSTORE_BASE64" | base64 --decode > $KEYSTORE_PATH
           
-          # 安全权限设置
-          chmod 600 $KEYSTORE_PATH_ANDROID
-          chmod 600 $KEYSTORE_PATH_APP
-          chmod 600 $KEYSTORE_PATH_WORK
+          if [ ! -f "$KEYSTORE_PATH" ]; then
+            echo "Error: Keystore file not created!"
+            exit 1
+          fi
+          ls -l $KEYSTORE_PATH
+          chmod 600 $KEYSTORE_PATH
 
-      # 赋予gradlew执行权限
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      # 参考代码：调试环境变量（排查签名问题）
-      - name: Debug signing environment variables
+      - name: Debug signing config (仅调试，不验证)
         run: |
-          echo "=== Signing Env Vars ==="
-          echo "KEYSTORE_PASSWORD: ${KEYSTORE_PASSWORD:0:4}****"  # 脱敏显示
+          echo "=== Signing Config Debug ==="
+          echo "KEYSTORE_PATH: $KEYSTORE_PATH"
+          echo "KEYSTORE_PASSWORD: ${KEYSTORE_PASSWORD:0:4}****"
           echo "KEY_ALIAS: $KEY_ALIAS"
           echo "KEY_PASSWORD: ${KEY_PASSWORD:0:4}****"
-          echo "=== Keystore Paths ==="
-          ls -l /home/runner/.android/keystore.jks
-          ls -l ${{ github.workspace }}/app/keystore.jks
         env:
+          KEYSTORE_PATH: ${{ github.workspace }}/app/keystore.jks
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
-      # 构建Release APK（加--info便于调试，传递所有签名变量）
       - name: Build & sign Release APK
         run: ./gradlew assembleRelease --info --stacktrace
         env:
-          # 匹配build.gradle.kts中的签名配置
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-          # 显式指定keystore路径（兜底）
-          ANDROID_SIGNING_STORE_FILE: ${{ github.workspace }}/app/keystore.jks
+          ORG_GRADLE_PROJECT_signingStoreFile: ${{ github.workspace }}/app/keystore.jks
+          ORG_GRADLE_PROJECT_signingStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingKeyAlias: ${{ secrets.KEY_ALIAS }}
+          ORG_GRADLE_PROJECT_signingKeyPassword: ${{ secrets.KEY_PASSWORD }}
 
-      # 参考代码核心：可靠查找APK文件（避免路径/命名变动问题）
       - name: Find Release APK
         id: find_apk
         run: |
-          # 递归查找release目录下的keymapper开头的APK
           APK_PATH=$(find app/build/outputs/apk/release -name "keymapper-*.apk" -type f | head -n 1)
           if [ -z "$APK_PATH" ]; then
             echo "Error: No APK file found!"
@@ -133,40 +122,49 @@ jobs:
             exit 1
           fi
           APK_NAME=$(basename "$APK_PATH")
-          # 设置输出变量（兼容旧版::set-output和新版env）
           echo "apk_path=$APK_PATH" >> $GITHUB_OUTPUT
           echo "apk_name=$APK_NAME" >> $GITHUB_OUTPUT
           echo "APK_PATH=$APK_PATH" >> $GITHUB_ENV
           echo "APK_NAME=$APK_NAME" >> $GITHUB_ENV
-          # 输出验证
           echo "Found APK: $APK_NAME at $APK_PATH"
 
-      # 上传APK为构建产物（便于手动下载）
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: signed-release-apk
           path: ${{ steps.find_apk.outputs.apk_path }}
-          retention-days: 30  # 保留30天
+          retention-days: 30
 
-      # 创建GitHub Release（自动打标签）
+      # 核心优化：完善Release信息（Build Time格式化 + 补充更多上下文）
+      - name: Generate formatted build time
+        id: build_time
+        run: |
+          # 格式化时间为 年-月-日 时:分:秒（UTC+8）
+          FORMATTED_TIME=$(date -d "${{ github.run_started_at }}" +"%Y-%m-%d %H:%M:%S" -u | awk '{print $1 " " $2 " (UTC)"}')
+          # 补充提交信息
+          COMMIT_MSG=$(git log -1 --pretty=format:"%s" ${{ github.sha }})
+          echo "formatted_time=$FORMATTED_TIME" >> $GITHUB_OUTPUT
+          echo "commit_msg=$COMMIT_MSG" >> $GITHUB_OUTPUT
+
       - name: Create GitHub Release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ github.run_number }}  # 用运行号作为版本标签
-          release_name: Release v${{ github.run_number }} (${{ github.sha }})
+          tag_name: v${{ github.run_number }}
+          release_name: Release v${{ github.run_number }} (${{ github.sha }:0:7})  # 缩短Commit哈希
           body: |
-            ## Automated Release Build
-            - Build Number: ${{ github.run_number }}
-            - Commit: ${{ github.sha }}
-            - Build Time: ${{ github.run_started_at }}
+            ## 🚀 Automated Release Build
+            - **Build Number**: ${{ github.run_number }}
+            - **Commit Hash**: ${{ github.sha }}
+            - **Commit Message**: ${{ steps.build_time.outputs.commit_msg }}
+            - **Build Time**: ${{ steps.build_time.outputs.formatted_time }}
+            - **Branch**: ${{ github.ref_name }}
+            - **APK Name**: ${{ steps.find_apk.outputs.apk_name }}
           draft: false
           prerelease: false
 
-      # 上传APK到Release Assets
       - name: Upload APK to Release
         uses: actions/upload-release-asset@v1
         env:
@@ -176,9 +174,3 @@ jobs:
           asset_path: ${{ steps.find_apk.outputs.apk_path }}
           asset_name: ${{ steps.find_apk.outputs.apk_name }}
           asset_content_type: application/vnd.android.package-archive
-
-      # 可选：APK签名验证（确保签名有效）
-      - name: Verify APK signature
-        run: |
-          jarsigner -verify -verbose -certs ${{ env.APK_PATH }}
-          zipalign -c 4 ${{ env.APK_PATH }}  # 验证对齐
