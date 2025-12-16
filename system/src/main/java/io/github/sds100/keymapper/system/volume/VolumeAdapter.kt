@@ -2,7 +2,6 @@ package io.github.sds100.keymapper.system.volume
 
 import io.github.sds100.keymapper.common.utils.KMResult
 
-
 interface VolumeAdapter {
     val ringerMode: RingerMode
 
@@ -13,6 +12,10 @@ interface VolumeAdapter {
     fun toggleMuteVolume(stream: VolumeStream? = null, showVolumeUi: Boolean): KMResult<*>
     fun showVolumeUi(): KMResult<*>
     fun setRingerMode(mode: RingerMode): KMResult<*>
+
+    val isMicrophoneMuted: Boolean
+    fun muteMicrophone(): KMResult<*>
+    fun unmuteMicrophone(): KMResult<*>
 
     fun isDndEnabled(): Boolean
     fun enableDndMode(dndMode: DndMode): KMResult<*>

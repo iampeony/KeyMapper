@@ -21,29 +21,33 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.withStateAtLeast
-import androidx.navigation.findNavController
 import com.anggrayudi.storage.extension.openInputStream
 import com.anggrayudi.storage.extension.openOutputStream
 import com.anggrayudi.storage.extension.toDocumentFile
 import io.github.sds100.keymapper.base.compose.ComposeColors
+import io.github.sds100.keymapper.base.input.InputEventDetectionSource
+import io.github.sds100.keymapper.base.input.InputEventHubImpl
+import io.github.sds100.keymapper.base.keymaps.ConfigKeyMapStateImpl
 import io.github.sds100.keymapper.base.onboarding.OnboardingUseCase
 import io.github.sds100.keymapper.base.system.accessibility.AccessibilityServiceAdapterImpl
 import io.github.sds100.keymapper.base.system.permissions.RequestPermissionDelegate
-import io.github.sds100.keymapper.base.trigger.RecordTriggerController
+import io.github.sds100.keymapper.base.utils.navigation.NavigationProvider
 import io.github.sds100.keymapper.base.utils.ui.ResourceProviderImpl
-import io.github.sds100.keymapper.base.utils.ui.launchRepeatOnLifecycle
 import io.github.sds100.keymapper.common.BuildConfigProvider
+import io.github.sds100.keymapper.sysbridge.service.SystemBridgeSetupControllerImpl
+import io.github.sds100.keymapper.system.devices.AndroidDevicesAdapter
 import io.github.sds100.keymapper.system.files.FileUtils
-import io.github.sds100.keymapper.system.inputevents.MyMotionEvent
+import io.github.sds100.keymapper.system.inputevents.KMGamePadEvent
+import io.github.sds100.keymapper.system.network.AndroidNetworkAdapter
 import io.github.sds100.keymapper.system.notifications.NotificationReceiverAdapterImpl
 import io.github.sds100.keymapper.system.permissions.AndroidPermissionAdapter
+import io.github.sds100.keymapper.system.root.SuAdapterImpl
 import io.github.sds100.keymapper.system.shizuku.ShizukuAdapter
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import timber.log.Timber
-import javax.inject.Inject
 
 abstract class BaseMainActivity : AppCompatActivity() {
 
@@ -51,11 +55,11 @@ abstract class BaseMainActivity : AppCompatActivity() {
         const val ACTION_SHOW_ACCESSIBILITY_SETTINGS_NOT_FOUND_DIALOG =
             "${BuildConfig.LIBRARY_PACKAGE_NAME}.ACTION_SHOW_ACCESSIBILITY_SETTINGS_NOT_FOUND_DIALOG"
 
-        const val ACTION_USE_FLOATING_BUTTONS =
-            "${BuildConfig.LIBRARY_PACKAGE_NAME}.ACTION_USE_FLOATING_BUTTONS"
-
         const val ACTION_SAVE_FILE = "${BuildConfig.LIBRARY_PACKAGE_NAME}.ACTION_SAVE_FILE"
         const val EXTRA_FILE_URI = "${BuildConfig.LIBRARY_PACKAGE_NAME}.EXTRA_FILE_URI"
+
+        const val ACTION_START_SYSTEM_BRIDGE =
+            "${BuildConfig.LIBRARY_PACKAGE_NAME}.ACTION_START_SYSTEM_BRIDGE"
     }
 
     @Inject
@@ -71,9 +75,6 @@ abstract class BaseMainActivity : AppCompatActivity() {
     lateinit var onboardingUseCase: OnboardingUseCase
 
     @Inject
-    lateinit var recordTriggerController: RecordTriggerController
-
-    @Inject
     lateinit var notificationReceiverAdapter: NotificationReceiverAdapterImpl
 
     @Inject
@@ -81,6 +82,27 @@ abstract class BaseMainActivity : AppCompatActivity() {
 
     @Inject
     lateinit var buildConfigProvider: BuildConfigProvider
+
+    @Inject
+    lateinit var systemBridgeSetupController: SystemBridgeSetupControllerImpl
+
+    @Inject
+    lateinit var suAdapter: SuAdapterImpl
+
+    @Inject
+    lateinit var devicesAdapter: AndroidDevicesAdapter
+
+    @Inject
+    lateinit var networkAdapter: AndroidNetworkAdapter
+
+    @Inject
+    lateinit var inputEventHub: InputEventHubImpl
+
+    @Inject
+    lateinit var navigationProvider: NavigationProvider
+
+    @Inject
+    lateinit var configKeyMapState: ConfigKeyMapStateImpl
 
     private lateinit var requestPermissionDelegate: RequestPermissionDelegate
 
@@ -132,9 +154,7 @@ abstract class BaseMainActivity : AppCompatActivity() {
         )
         super.onCreate(savedInstanceState)
 
-        if (viewModel.previousNightMode != currentNightMode) {
-            resourceProvider.onThemeChange()
-        }
+        savedInstanceState?.let { configKeyMapState.restoreState(it) }
 
         requestPermissionDelegate = RequestPermissionDelegate(
             this,
@@ -143,32 +163,16 @@ abstract class BaseMainActivity : AppCompatActivity() {
             notificationReceiverAdapter = notificationReceiverAdapter,
             buildConfigProvider = buildConfigProvider,
             shizukuAdapter = shizukuAdapter,
+            navigationProvider = navigationProvider,
+            coroutineScope = lifecycleScope,
         )
 
         permissionAdapter.request
             .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
             .onEach { permission ->
-                requestPermissionDelegate.requestPermission(
-                    permission,
-                    findNavController(R.id.container),
-                )
+                requestPermissionDelegate.requestPermission(permission)
             }
             .launchIn(lifecycleScope)
-
-        // Must launch when the activity is resumed
-        // so the nav controller can be found
-        launchRepeatOnLifecycle(Lifecycle.State.RESUMED) {
-            if (viewModel.handledActivityLaunchIntent) {
-                return@launchRepeatOnLifecycle
-            }
-
-            when (intent?.action) {
-                ACTION_SHOW_ACCESSIBILITY_SETTINGS_NOT_FOUND_DIALOG -> {
-                    viewModel.onCantFindAccessibilitySettings()
-                    viewModel.handledActivityLaunchIntent = true
-                }
-            }
-        }
 
         IntentFilter().apply {
             addAction(ACTION_SAVE_FILE)
@@ -180,12 +184,12 @@ abstract class BaseMainActivity : AppCompatActivity() {
                 ContextCompat.RECEIVER_EXPORTED,
             )
         }
+
+        handleIntent(intent)
     }
 
     override fun onResume() {
         super.onResume()
-
-        Timber.i("MainActivity: onResume. Version: ${buildConfigProvider.version} ${buildConfigProvider.versionCode}")
 
         // This must be after onResume to ensure all the fragment lifecycles' have also
         // resumed which are observing these events.
@@ -193,6 +197,16 @@ abstract class BaseMainActivity : AppCompatActivity() {
         // the activities have not necessarily resumed at that point.
         permissionAdapter.onPermissionsChanged()
         serviceAdapter.invalidateState()
+        suAdapter.requestPermission()
+        systemBridgeSetupController.invalidateSettings()
+        networkAdapter.invalidateState()
+        onboardingUseCase.handledMigrateScreenOffKeyMapsNotification()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        configKeyMapState.saveState(outState)
+
+        super.onSaveInstanceState(outState)
     }
 
     override fun onDestroy() {
@@ -203,17 +217,48 @@ abstract class BaseMainActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
+    /**
+     * Process motion events from the activity so that DPAD buttons can be recorded
+     * even when the Key Mapper IME is not being used. DO NOT record the key events because
+     * these are sent from the joy sticks.
+     */
     override fun onGenericMotionEvent(event: MotionEvent?): Boolean {
         event ?: return super.onGenericMotionEvent(event)
 
-        val consume =
-            recordTriggerController.onActivityMotionEvent(MyMotionEvent.fromMotionEvent(event))
+        val gamepadEvent = KMGamePadEvent.fromMotionEvent(event) ?: return false
+        val consume = inputEventHub.onInputEvent(
+            gamepadEvent,
+            detectionSource = InputEventDetectionSource.INPUT_METHOD,
+        )
 
         return if (consume) {
             true
         } else {
             // IMPORTANT! return super so that the back navigation button still works.
             super.onGenericMotionEvent(event)
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+
+        handleIntent(intent)
+    }
+
+    private fun handleIntent(intent: Intent?) {
+        when (intent?.action) {
+            ACTION_SHOW_ACCESSIBILITY_SETTINGS_NOT_FOUND_DIALOG -> {
+                viewModel.onCantFindAccessibilitySettings()
+                // Only clear the intent if it is handled in case it is used elsewhere
+                this.intent = null
+            }
+
+            ACTION_START_SYSTEM_BRIDGE -> {
+                viewModel.launchProModeSetup()
+
+                // Only clear the intent if it is handled in case it is used elsewhere
+                this.intent = null
+            }
         }
     }
 

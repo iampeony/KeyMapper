@@ -5,9 +5,7 @@
     <string name="selection_count"> seçildi</string>
     <string name="enable">Etkinleştir</string>
     <string name="recyclerview_placeholder">¯\\_(ツ)_/¯\n\nBurada hiçbir şey yok!</string>
-    <string name="triggers_recyclerview_placeholder">İlk adım, tuş eşlemesini tetikleyecek bazı düğmeler eklemektir.\n\nÖnce ‘Tetikleyici Kaydet’ seçeneğine dokunun ve ardından yeniden eşlemek istediğiniz düğmelere basın. Bunlar burada görünecek.\n\nAlternatif olarak, bir tuş eşlemesini ‘gelişmiş tetikleyici’ kullanarak tetikleyebilirsiniz.\n\nİstediğiniz tuşları karıştırıp eşleştirebilirsiniz!</string>
     <string name="choose_action_warning_requires_root">Root gerektirir</string>
-    <string name="press_dot_dot_dot">Bas…</string>
     <string name="no_actions">Eylem yok</string>
     <string name="no_trigger">Tetikleyici yok</string>
     <string name="unknown_device_name">Bilinmeyen cihaz adı</string>
@@ -56,9 +54,7 @@ Kaydedilmiş ses dosyalarını ayarlardan silebilirsiniz.</string>
     <string name="action_title_intent_start_service">Servis başlat: %s</string>
     <string name="action_title_intent_send_broadcast">Yayın gönder: %s</string>
     <string name="clipboard_label_keymap_uid">Tuş eşleme kimliği</string>
-    <string name="check_box_key_event_option_use_shell">Kabuğu kullan (Yalnızca ROOT)</string>
     <string name="trigger_error_dnd_access_denied">Rahatsız Etmeyin modunda düzgün çalışması için izin gerekli!</string>
-    <string name="trigger_error_screen_off_root_permission_denied">Ekran kapalıyken tetikleme seçeneği, çalışması için root izni gerektirir!</string>
     <string name="trigger_error_cant_detect_in_phone_call">Bu tetikleyici, telefon çalarken veya görüşme sırasında çalışmaz!</string>
     <string name="trigger_error_cant_detect_in_phone_call_explanation">Android, telefonunuz çalarken veya bir görüşme sırasında erişilebilirlik servislerinin ses düğmesi basışlarını algılamasına izin vermez, ancak giriş yöntemi servisleri bunu algılayabilir. Bu nedenle, bu tetikleyicinin çalışmasını istiyorsanız Key Mapper klavyelerinden birini kullanmalısınız.</string>
     <string name="trigger_error_gesture_stroke_count_too_high">Android sınırlamaları nedeniyle harekette çok fazla parmak var.</string>
@@ -78,9 +74,8 @@ Kaydedilmiş ses dosyalarını ayarlardan silebilirsiniz.</string>
     <string name="description_open_app">%s uygulamasını aç</string>
     <string name="description_text_block">‘%s’ yaz</string>
     <string name="description_keyevent">%s%s gir</string>
-    <string name="description_keyevent_through_shell">Kabuk üzerinden %s gir</string>
     <string name="description_keyevent_from_device">%s cihazından %s%s gir</string>
-    <string name="description_url">%s aç</string>
+    <string name="description_url">%s uygulamasını aç</string>
     <string name="description_tap_coordinate_default">Ekrana dokun (%d, %d)</string>
     <string name="description_tap_coordinate_with_description">Ekrana dokun (%s)</string>
     <string name="description_swipe_coordinate_default">%d parmakla %d/%d koordinatlarından %d/%d koordinatlarına %dms içinde kaydır</string>
@@ -131,13 +126,16 @@ Kaydedilmiş ses dosyalarını ayarlardan silebilirsiniz.</string>
     <string name="hint_wifi_ssid">WiFi ağ SSID’si</string>
     <!--  Hints  -->
     <!--  Radio buttons  -->
-    <string name="radio_button_parallel">Aynı anda</string>
-    <string name="radio_button_sequence">Sırayla</string>
+    <string name="radio_button_parallel">Birlikte bas</string>
+    <string name="radio_button_sequence">Sırayla bas</string>
     <string name="radio_button_and">VE</string>
     <string name="radio_button_or">VEYA</string>
     <string name="radio_button_short_press">Kısa basış</string>
     <string name="radio_button_long_press">Uzun basış</string>
     <string name="radio_button_double_press">Çift basış</string>
+    <string name="radio_button_short">Kısa</string>
+    <string name="radio_button_long">Uzun</string>
+    <string name="radio_button_double">Çift</string>
     <string name="radio_button_intent_extra_value_true">Doğru</string>
     <string name="radio_button_intent_extra_value_false">Yanlış</string>
     <string name="radio_button_intent_target_activity">Etkinlik</string>
@@ -304,12 +302,12 @@ Kaydedilmiş ses dosyalarını ayarlardan silebilirsiniz.</string>
     <!-- Menu action titles-->
     <!-- Button titles -->
     <string name="button_add_action">Eylem ekle</string>
-    <string name="button_record_trigger">Tetikleyici kaydet</string>
+    <string name="button_record_trigger">Tetikleyiciyi kaydetmek için dokunun</string>
     <string name="button_advanced_triggers">Gelişmiş tetikleyiciler</string>
     <string name="button_advanced_triggers_badge">YENİ!</string>
-    <string name="button_done">Tamam</string>
+    <string name="button_done">Bitti</string>
     <string name="button_fix">Düzelt</string>
-    <string name="button_recording_trigger_countdown">Kaydediyor (%d…)</string>
+    <string name="button_recording_trigger_countdown">Tuşlarınıza basın</string>
     <string name="button_add_constraint">Kısıtlama ekle</string>
     <string name="button_choose_keycode">Tuş kodu seç</string>
     <string name="button_add_intent_extra">Ekstra ekle</string>
@@ -331,16 +329,15 @@ Kaydedilmiş ses dosyalarını ayarlardan silebilirsiniz.</string>
     <string name="dialog_title_cant_find_accessibility_settings_page">Erişilebilirlik ayarları sayfası bulunamadı</string>
     <string name="dialog_title_unsaved_changes">Kaydedilmemiş değişiklikler</string>
     <string name="dialog_message_unsaved_changes"> Kaydedilmemiş değişiklikleriniz var. Bunları iptal ederseniz, düzenlemeleriniz kaybolacak.</string>
-    <string name="dialog_message_root_prompt">Telefonunuzun rootlu olmadığını biliyorsanız veya rootun ne olduğunu bilmiyorsanız, yalnızca rootlu cihazlarda çalışan özellikleri kullanamazsınız. ‘Tamam’a dokunduğunuzda ayarlara yönlendirileceksiniz.
-            Ayarlarda, en alta kaydırın ve root özelliklerini/eylemlerini kullanabilmek için ‘Key Mapper root iznine sahip’ seçeneğine dokunun.</string>
+    <string name="dialog_message_root_prompt">Lütfen Magisk gibi root yönetim uygulamanızda Key Mapper\'a root izni verin.</string>
     <string name="dialog_title_write_secure_settings">WRITE_SECURE_SETTINGS izni ver</string>
     <string name="dialog_message_write_secure_settings">Bu izni vermek için bir PC/Mac gereklidir. Çevrimiçi kılavuzu okuyun.</string>
     <string name="dialog_message_cant_find_accessibility_settings_page">Cihazınızda erişilebilirlik servisleri ayarları sayfası yok gibi görünüyor. Bunu nasıl düzelteceğinizi açıklayan çevrimiçi kılavuzu okumak için “kılavuz” seçeneğine dokunun.</string>
     <string name="dialog_message_parallel_trigger_order">Tuşlar, basılı tutulacakları sırayla yukarıdan aşağıya listelenmelidir.</string>
     <string name="dialog_message_sequence_trigger_explanation">Bir “sıra” tetikleyicisi, paralel tetikleyicilerden farklı olarak bir zaman aşımına sahiptir. Bu, ilk tuşa bastıktan sonra tetikleyicideki diğer tuşları girmeniz için belirli bir süreniz olacağı anlamına gelir. Tetikleyiciye eklediğiniz tüm tuşlar, zaman aşımı süresine ulaşılana kadar normal işlevlerini yerine getirmez. Bu zaman aşımını “Seçenekler” sekmesinden değiştirebilirsiniz.</string>
     <string name="dialog_message_bt_constraint_limitation">Android, uygulamaların bağlı (eşleştirilmemiş) Bluetooth cihazlarının listesini almasına izin vermez. Uygulamalar yalnızca bu cihazların bağlandığını ve bağlantısının kesildiğini algılayabilir. Bu nedenle, Bluetooth cihazınız erişilebilirlik servisi başladığında zaten bağlıysa, uygulamanın bunu bilmesi için cihazı yeniden bağlamanız gerekecek.</string>
+    <string name="dialog_title_change_location_or_disable">Otomatik yedekleme</string>
     <string name="dialog_message_change_location_or_disable">Konumu değiştir veya otomatik yedeklemeyi kapat?</string>
-    <string name="dialog_message_screen_constraints_limitation">Ekran açma/kapama kısıtlamaları, yalnızca “ekran kapalıyken tetikleyiciyi algıla” tuş eşleme seçeneğini açtıysanız çalışır. Bu seçenek, bazı tuşlar (örneğin ses düğmeleri) için ve yalnızca rootluysanız görünür. Desteklenen tuşların listesini Yardım sayfasında görebilirsiniz.</string>
     <string name="dialog_message_password_screen_lock_warning">PIN veya Desen gibi başka bir ekran kilidiniz varsa endişelenmenize gerek yok. Ancak yalnızca Parola ekran kilidi kullanıyorsanız, Key Mapper Temel Giriş Yöntemi’ni kullanırsanız telefonunuzun kilidini açamazsınız çünkü bu yöntemin bir arayüzü yoktur. Key Mapper’a WRITE_SECURE_SETTINGS izni vererek klavyeyi değiştirmek için bir bildirim gösterebilirsiniz. Bunu nasıl yapacağınızı öğrenmek için ekranın altındaki soru işaretine dokunun.</string>
     <string name="dialog_message_select_compatible_ime">Eylemler için bir giriş yöntemi gerektiren bir yöntem seçin. Bunu daha sonra ana ekranın alt menüsündeki “Eylemler için klavye seç” seçeneğiyle değiştirebilirsiniz.</string>
     <string name="dialog_message_enable_physical_keyboard_caps_lock_a_keyboard_layout">Caps Lock tuşunun hala büyük harf kilitlemesini engellemek için klavyenizde “Caps Lock’u kameraya” klavye düzenini seçmeniz gerekir. Bu ayarı cihaz ayarlarınızda -&gt; Diller ve Giriş -&gt; Fiziksel Klavye -&gt; Klavyenize dokunun -&gt; Klavye Düzenlerini Ayarla bölümünden bulabilirsiniz. Bu, Caps Lock tuşunu KEYCODE_CAMERA’ya yeniden eşleyerek Key Mapper’ın bunu doğru şekilde eşlemesini sağlar.\n\nBunu yaptıktan sonra Caps Lock tetikleyici tuşunu kaldırıp Caps Lock tuşunu tekrar kaydetmelisiniz. Adımları doğru yaptıysanız “Caps Lock” yerine “Kamera” yazmalıdır.</string>
@@ -396,9 +393,9 @@ Kaydedilmiş ses dosyalarını ayarlardan silebilirsiniz.</string>
     <string name="sorting_drag_and_drop_list_help_example">Örnek: Tuş eşlemelerini öncelikle Eylemlerine göre artan sırayla ve ikincil olarak Tetikleyicilerine göre azalan sırayla sıralamak için Eylemleri birinci sıraya, Tetikleyicileri ikinci sıraya taşıyın.</string>
     <string name="drag_handle_for">%1$s için tutamaç</string>
     <string name="show_example">Örnek göster</string>
-    <string name="dialog_title_keycode_to_scancode_trigger_explanation">Tanınmayan tuş kodu</string>
-    <string name="dialog_message_keycode_to_scancode_trigger_explanation">Basılı düğme, giriş sistemi tarafından tanınmadı. Geçmişte Key Mapper bu tür düğmeleri tek bir düğme olarak algılıyordu. Şu anda uygulama, düğmeyi tarama koduna göre ayırt etmeye çalışıyor; bu, daha benzersiz olmalıdır. Ancak bu, benzersizliği garanti etmeyen geçici ve eksik bir çözümdür.</string>
-    <string name="pos_done">Tamam</string>
+    <string name="dialog_title_request_notification_permission">Bildirimleri aç</string>
+    <string name="dialog_message_request_notification_permission">Bazı eylemler ve seçenekler bu izni gerektirir. Ayrıca uygulama hakkında önemli haberler olduğunda bildirim alabilirsiniz.</string>
+    <string name="pos_done">Bitti</string>
     <string name="pos_grant_write_secure_settings_guide">Kılavuz</string>
     <string name="pos_start_service_with_adb_guide">Kılavuz</string>
     <string name="pos_change_location">Değiştir</string>
@@ -410,10 +407,12 @@ Kaydedilmiş ses dosyalarını ayarlardan silebilirsiniz.</string>
     <string name="pos_discard_changes">Değişiklikleri iptal et</string>
     <string name="pos_save">Kaydet</string>
     <string name="pos_understood">Anladım</string>
+    <string name="pos_turn_on">Aç</string>
     <string name="neg_turn_off">Kapat</string>
     <string name="neg_cancel">İptal</string>
     <string name="neg_dont_show_again">Tekrar gösterme</string>
     <string name="neg_keep_editing">Düzenlemeye devam et</string>
+    <string name="neg_no_thanks">Hayır, teşekkürler</string>
     <string name="neutral_hide">Gizle</string>
     <string name="neutral_go_to_dont_kill_my_app">Çevrimiçi kılavuz</string>
     <string name="neutral_go_to_settings">Ayarlar</string>
@@ -426,13 +425,10 @@ Kaydedilmiş ses dosyalarını ayarlardan silebilirsiniz.</string>
     <string name="dialog_button_fix">Düzelt</string>
     <!-- Dialog stuff -->
     <!-- Notification strings -->
-    <string name="notification_channel_ime_picker">Klavye seçici</string>
     <string name="notification_channel_toggle_mappings">Tuş eşlemelerini duraklat/devam ettir</string>
     <string name="notification_channel_keyboard_hidden">Klavye gizli uyarısı</string>
     <string name="notification_channel_toggle_keyboard">Key Mapper klavyesini aç/kapat</string>
     <string name="notification_channel_new_features">Yeni özellikler</string>
-    <string name="notification_ime_persistent_text">Klavyenizi değiştirmek için dokunun.</string>
-    <string name="notification_ime_persistent_title">Klavye seçici</string>
     <string name="notification_keymaps_resumed_title">Çalışıyor</string>
     <string name="notification_keymaps_resumed_text">Key Mapper’ı açmak için dokunun.</string>
     <string name="notification_action_pause">Duraklat</string>
@@ -454,38 +450,34 @@ Kaydedilmiş ses dosyalarını ayarlardan silebilirsiniz.</string>
     <string name="notification_toggle_keyboard_action">Aç/Kapat</string>
     <!-- Notification strings -->
     <!--Preference titles and summaries-->
-    <string name="title_pref_long_press_delay">Varsayılan uzun basış gecikmesi (ms)</string>
+    <string name="title_pref_long_press_delay">Varsayılan uzun basış gecikmesi</string>
     <string name="summary_pref_long_press_delay">Bir düğmenin uzun basış olarak algılanması için ne kadar süre basılı tutulması gerektiği. Varsayılan 500ms’dir. Bir tuş eşlemesinin seçeneklerinde geçersiz kılınabilir.</string>
-    <string name="title_pref_double_press_delay">Varsayılan çift basış süresi (ms)</string>
+    <string name="title_pref_double_press_delay">Varsayılan çift basış süresi</string>
     <string name="summary_pref_double_press_delay">Bir düğmenin çift basış olarak algılanması için ne kadar hızlı çift basılması gerektiği. Varsayılan 300ms’dir. Bir tuş eşlemesinin seçeneklerinde geçersiz kılınabilir.</string>
     <string name="summary_pref_vibration_duration">Bir tuş eşlemesi için titreşim etkinse ne kadar süre titreşeceği. Varsayılan 200ms’dir. Bir tuş eşlemesinin seçeneklerinde geçersiz kılınabilir.</string>
-    <string name="title_pref_vibration_duration">Varsayılan titreşim süresi (ms)</string>
+    <string name="title_pref_vibration_duration">Varsayılan titreşim süresi</string>
     <string name="summary_pref_repeat_delay">Eylemin tekrarlanmaya başlaması için tetikleyicinin ne kadar süre basılı tutulması gerektiği. Varsayılan 400ms’dir. Bir tuş eşlemesinin seçeneklerinde geçersiz kılınabilir.</string>
-    <string name="title_pref_repeat_delay">Varsayılan tekrar gecikmesi (ms)</string>
+    <string name="title_pref_repeat_delay">Tekrara kadar varsayılan gecikme</string>
     <string name="summary_pref_repeat_rate">Bir eylemin her tekrar arasındaki gecikme. Varsayılan 50ms’dir. Bir tuş eşlemesinin seçeneklerinde geçersiz kılınabilir.</string>
-    <string name="title_pref_repeat_rate">Varsayılan tekrarlar arası gecikme (ms)</string>
+    <string name="title_pref_repeat_rate">Tekrarlar arası varsayılan gecikme</string>
     <string name="summary_pref_sequence_trigger_timeout">Bir sıra tetikleyicisini tamamlamak için izin verilen süre. Varsayılan 1000ms’dir. Bir tuş eşlemesinin seçeneklerinde geçersiz kılınabilir.</string>
-    <string name="title_pref_sequence_trigger_timeout">Varsayılan sıra tetikleyici zaman aşımı (ms)</string>
+    <string name="title_pref_sequence_trigger_timeout">Varsayılan sıra tetikleyici zaman aşımı</string>
     <string name="title_pref_reset_defaults">Sıfırla</string>
-    <string name="summary_pref_force_vibrate">Tüm tuş eşlemelerini titreşime zorla.</string>
-    <string name="title_pref_force_vibrate">Titreşimi zorla</string>
-    <string name="title_pref_show_ime_picker_notification">Klavye seçici bildirimi</string>
-    <string name="summary_pref_show_ime_picker_notification">Klavye seçmenize olanak tanıyan kalıcı bir bildirim göster.</string>
-    <string name="title_pref_show_toggle_keymaps_notification">Tuş eşlemelerini duraklat/devam ettir bildirimi</string>
-    <string name="summary_pref_show_toggle_keymaps_notification">Tuş eşlemelerinizi başlatan/duraklatan kalıcı bir bildirim göster.</string>
-    <string name="title_pref_automatic_backup_location">Tuş eşlemelerini belirtilen bir konuma otomatik olarak yedekle</string>
-    <string name="summary_pref_automatic_backup_location_disabled">Konum seçilmedi.</string>
-    <string name="title_pref_choose_devices">Cihazları seç</string>
-    <string name="title_pref_auto_show_ime_picker">Klavye seçiciyi otomatik olarak göster</string>
-    <string name="summary_pref_auto_show_ime_picker">Seçtiğiniz bir cihaz bağlandığında veya bağlantısı kesildiğinde klavye seçici otomatik olarak gösterilir. Aşağıdan cihazları seçin.</string>
+    <string name="title_pref_force_vibrate">Tüm tuş eşlemelerini titreştir</string>
+    <string name="summary_pref_force_vibrate">Bir tuş eşlemesi her tetiklendiğinde</string>
+    <string name="title_pref_show_toggle_keymaps_notification">Duraklat/devam ettir bildirimini göster</string>
+    <string name="summary_pref_show_toggle_keymaps_notification">Tuş eşlemelerinizi açıp kapatın</string>
+    <string name="title_pref_automatic_backup_location_enabled">Otomatik yedekleme konumunu değiştir</string>
+    <string name="title_pref_automatic_backup_location_disabled">Otomatik yedeklemeyi aç</string>
+    <string name="summary_pref_automatic_backup_location_disabled">Tuş eşlemelerinizi periyodik olarak yedekleyin</string>
     <string name="title_pref_auto_change_ime_on_connection">Bir cihaz (örneğin klavye) bağlandığında/bağlantısı kesildiğinde ekran klavyesini otomatik olarak değiştir</string>
     <string name="summary_pref_auto_change_ime_on_connection">Seçilen bir cihaz bağlandığında son kullanılan Key Mapper klavyesi otomatik olarak seçilir. Cihazın bağlantısı kesildiğinde normal klavyeniz otomatik olarak seçilir.</string>
     <string name="title_pref_auto_change_ime_on_input_focus">Metin girmeye başladığınızda ekran klavyesini otomatik olarak değiştir</string>
     <string name="summary_pref_auto_change_ime_on_input_focus">Klavyeyi açmaya çalıştığınızda son kullanılan Key Mapper dışı klavye otomatik olarak seçilir. Klavyeyi kullanmayı bıraktığınızda Key Mapper klavyeniz otomatik olarak seçilir.</string>
-    <string name="title_pref_show_toast_when_auto_changing_ime">Klavyeyi otomatik olarak değiştirirken ekranda bir mesaj göster</string>
-    <string name="title_pref_root_permission">Key Mapper root iznine sahip</string>
-    <string name="summary_pref_root_permission">Yalnızca rootlu cihazlarda çalışan özellikleri/eylemleri kullanmak istiyorsanız bunu etkinleştirin. Bu özelliklerin çalışması için Key Mapper’ın root erişim yönetim uygulamanızdan (örneğin Magisk, SuperSU) root izni almış olması gerekir.
-            Bunu yalnızca cihazınızın rootlu olduğunu biliyor ve Key Mapper’a root izni verdiyseniz açın.</string>
+    <string name="title_pref_show_toast_when_auto_changing_ime">Ekran üstü mesaj</string>
+    <string name="summary_pref_show_toast_when_auto_changing_ime">Klavyeyi otomatik olarak değiştirirken göster</string>
+    <string name="title_pref_root_permission">Root izni iste</string>
+    <string name="summary_pref_root_permission">Cihazınız rootlu ise bu, Magisk\'ten veya root uygulamanızdan root izni penceresini gösterecektir.</string>
     <string name="title_pref_dark_theme">Tema seç</string>
     <string name="summary_pref_dark_theme">Açık ve koyu temalar mevcut</string>
     <string name="summary_pref_show_toggle_keyboard_notification">Bildirime dokunduğunuzda Key Mapper klavyesi ile varsayılan klavyeniz arasında geçiş yapın.</string>
@@ -493,22 +485,16 @@ Kaydedilmiş ses dosyalarını ayarlardan silebilirsiniz.</string>
     <string name="title_pref_toggle_keyboard_on_toggle_keymaps">Tuş eşlemelerini açarken/kapatırken klavyeyi otomatik olarak değiştir</string>
     <string name="summary_pref_toggle_keyboard_on_toggle_keymaps">Tuş eşlemelerinizi devam ettirdiğinizde Key Mapper klavyesini, duraklattığınızda ise varsayılan klavyenizi otomatik olarak seçin.</string>
     <string name="title_pref_hide_home_screen_alerts">Ana ekran uyarılarını gizle</string>
-    <string name="summary_pref_hide_home_screen_alerts">Ana ekranın üstündeki uyarıları gizle.</string>
-    <string name="title_pref_show_device_descriptors">Cihaza özgü tetikleyiciler için cihaz kimliğinin ilk 5 karakterini göster</string>
-    <string name="summary_pref_show_device_descriptors">Bu, aynı ada sahip cihazları ayırt etmek için kullanışlıdır.</string>
-    <string name="title_pref_reroute_keyevents_link">ABD İngilizcesine ayarlanmış klavyeleri düzelt</string>
-    <string name="summary_pref_reroute_keyevents_link">Bu, bir erişilebilirlik servisi etkinleştirildiğinde doğru klavye düzenine sahip olmayan klavyeleri düzeltir. Daha fazla bilgi okuyup yapılandırmak için dokunun.</string>
-    <string name="title_pref_reroute_keyevents">ABD İngilizcesine ayarlanmış klavyeleri düzelt</string>
-    <string name="summary_pref_reroute_keyevents">Android 11’de bir hata var; bir erişilebilirlik servisi açıldığında Android, tüm harici cihazları aynı dahili sanal cihaz olarak görüyor. Bu cihazları doğru şekilde tanımlayamadığı için hangi klavye düzenini kullanacağını bilemiyor ve örneğin bir Alman klavyesi olsa bile varsayılan olarak ABD İngilizcesini kullanıyor. Aşağıdaki adımları izleyerek Key Mapper ile bu sorunu çözebilirsiniz.</string>
-    <string name="title_pref_devices_to_reroute_keyevents_choose_devices">4. Cihazları seç</string>
-    <string name="title_pref_devices_to_reroute_keyevents_install_gui_keyboard">1. Key Mapper GUI Klavyesini yükle (isteğe bağlı)</string>
-    <string name="title_pref_devices_to_reroute_keyevents_install_leanback_keyboard">1. Key Mapper Leanback Klavyesini yükle (isteğe bağlı)</string>
-    <string name="title_pref_devices_to_reroute_keyevents_enable_ime_gui">2. Key Mapper GUI Klavyesini veya Key Mapper Temel Giriş Yöntemi’ni etkinleştir</string>
-    <string name="title_pref_devices_to_reroute_keyevents_enable_ime_leanback">2. Key Mapper Leanback Klavyesini veya Key Mapper Temel Giriş Yöntemi’ni etkinleştir</string>
-    <string name="title_pref_devices_to_reroute_keyevents_choose_ime">3. Az önce etkinleştirdiğiniz klavyeyi kullan</string>
-    <string name="title_pref_devices_to_reroute_keyevents_guide">(Önerilen) Bu ayar için kullanıcı kılavuzunu okuyun.</string>
+    <string name="summary_pref_hide_home_screen_alerts">Ana ekranın üstündeki uyarıları gizle</string>
+    <string name="title_pref_show_device_descriptors">Cihaz kimliklerini göster</string>
+    <string name="summary_pref_show_device_descriptors">Aynı ada sahip cihazları ayırt et</string>
     <string name="title_pref_toggle_logging">Ekstra günlüğü etkinleştir</string>
-    <string name="title_pref_view_and_share_log">Günlüğü görüntüle ve paylaş</string>
+    <string name="summary_pref_toggle_logging">Daha ayrıntılı günlükler kaydet</string>
+    <string name="title_pref_view_and_share_log">Key Mapper günlüğünü görüntüle</string>
+    <string name="summary_pref_view_and_share_log">Sorun yaşıyorsanız bunu geliştiriciyle paylaşın</string>
+    <string name="title_pref_share_logcat">Logcat\'i paylaş</string>
+    <string name="summary_pref_share_logcat">Tüm sistem günlüğünü paylaş</string>
+    <string name="dialog_title_share_logcat_error">Logcat paylaşılamadı</string>
     <string name="title_pref_report_issue">Sorun bildir</string>
     <string name="title_pref_delete_sound_files">Ses dosyalarını sil</string>
     <string name="summary_pref_delete_sound_files">Ses eylemi için kullanılabilecek ses dosyalarını sil.</string>
@@ -520,37 +506,45 @@ Kaydedilmiş ses dosyalarını ayarlardan silebilirsiniz.</string>
     <string name="title_pref_grant_shizuku_started">2. Shizuku başlatıldı.</string>
     <string name="title_pref_grant_shizuku_not_granted">3. Key Mapper’ın Shizuku’yu kullanma izni yok. Bu izni vermek için dokunun.</string>
     <string name="title_pref_grant_shizuku_granted">3. Key Mapper otomatik olarak Shizuku’yu kullanacak. Key Mapper’ın hangi özelliklerinin Shizuku’yu kullandığını okumak için dokunun.</string>
-    <string name="title_pref_default_options">Varsayılan eşleme seçenekleri</string>
-    <string name="summary_pref_default_options">Tuş eşlemeleriniz için varsayılan seçenekleri değiştirin.</string>
-    <string name="title_pref_reset_settings">Tüm ayarları sıfırla</string>
-    <string name="summary_pref_reset_settings">TEHLİKE! Uygulamadaki tüm ayarları varsayılana sıfırla. Tuş eşlemeleriniz sıfırlanMAYACAK.</string>
+    <string name="title_pref_default_options">Varsayılan seçenekleri değiştir</string>
+    <string name="summary_pref_default_options">Tetikleyiciler ve eylemler için</string>
+    <string name="title_pref_reset_settings">Tümünü sıfırla</string>
     <string name="dialog_title_reset_settings">TEHLİKE!</string>
-    <string name="dialog_message_reset_settings">Uygulamadaki tüm ayarları varsayılana sıfırlamak istediğinizden emin misiniz? Tuş eşlemeleriniz sıfırlanMAYACAK. Giriş ekranı ve tüm uyarı pop-up’ları tekrar görünecek.</string>
+    <string name="dialog_message_reset_settings">Uygulamadaki tüm ayarları varsayılana sıfırlamak istediğinizden emin misiniz? Mevcut tuş eşlemeleriniz etkilenmeyecektir. Tanıtımlar ve uyarı pencereleri tekrar gösterilecektir.</string>
     <string name="pos_button_reset_settings">Evet, sıfırla</string>
+    <string name="settings_reset_app_bar_button">Tümünü sıfırla</string>
+    <string name="settings_section_customize_experience_title">Deneyiminizi özelleştirin</string>
+    <string name="settings_section_key_maps_title">Tuş eşlemeleri</string>
+    <string name="settings_section_data_management_title">Veri yönetimi</string>
+    <string name="settings_section_power_user_title">Güçlü kullanıcı seçenekleri</string>
+    <string name="settings_section_debugging_title">Hata ayıklama</string>
+    <string name="settings_section_notifications">Bildirimler</string>
     <!--Preference titles and summaries-->
     <!--Preference categories-->
-    <string name="title_pref_category_ime_picker">Klavye seçiciyi otomatik olarak göster</string>
-    <string name="summary_pref_category_ime_picker">Klavye seçiciyi otomatik olarak göstermeye olanak tanıyan ayarları görmek için dokunun.</string>
     <string name="title_pref_category_root">Root ayarları</string>
     <string name="summary_pref_category_root">Bu seçenekler yalnızca rootlu cihazlarda çalışır! Rootun ne olduğunu veya cihazınızın rootlu olup olmadığını bilmiyorsanız, bunlar çalışmazsa lütfen kötü bir inceleme bırakmayın. :)</string>
     <string name="title_pref_category_write_secure_settings">WRITE_SECURE_SETTINGS izni gerektirir</string>
     <string name="summary_pref_category_write_secure_settings">Bu seçenekler yalnızca Key Mapper WRITE_SECURE_SETTINGS iznine sahipse etkinleşir. İzni nasıl vereceğinizi öğrenmek için aşağıdaki düğmeye tıklayın.</string>
     <string name="title_pref_category_shizuku">Shizuku desteği</string>
     <string name="summary_pref_category_shizuku">Shizuku, Key Mapper’ın yalnızca sistem uygulamalarının yapabileceği şeyleri yapmasını sağlayan bir uygulamadır. Örneğin, Key Mapper klavyesini kullanmanız gerekmez. Bunu nasıl kuracağınızı öğrenmek için dokunun.</string>
-    <string name="summary_pref_category_shizuku_follow_steps">Shizuku’yu kurmak için bu adımları izleyin.</string>
+    <string name="summary_pref_category_shizuku_follow_steps">Shizuku\'yu kurmak için bu adımları izleyin</string>
     <string name="title_pref_automatically_change_ime">Klavyeyi otomatik olarak değiştir</string>
-    <string name="summary_pref_automatically_change_ime">Bunlar gerçekten kullanışlı ayarlar ve kontrol etmeniz önerilir!</string>
+    <string name="summary_pref_automatically_change_ime">Gerektiğinde değiştir, sonra geri dön</string>
+    <string name="title_pref_automatically_change_ime_choose_devices">Cihazları seç</string>
+    <string name="summary_pref_automatically_change_ime_choose_devices">Hangi cihazların otomatik klavye değiştirmeyi tetikleyeceğini seçin</string>
     <string name="title_pref_category_log">Günlük kaydı</string>
     <string name="summary_pref_category_log">Bu, tuş eşlemelerinize gecikme ekleyebilir, bu yüzden yalnızca uygulamayı hata ayıklamaya çalışıyorsanız veya geliştirici tarafından istenmişse açın.</string>
+    <string name="title_pref_pro_mode">PRO modunu kullan</string>
+    <string name="summary_pref_pro_mode">Gelişmiş tuş olayı algılama ve daha fazlası</string>
+    <string name="theme_light">Açık</string>
+    <string name="theme_dark">Koyu</string>
+    <string name="theme_system">Sistem</string>
     <!--Preference categories-->
-    <!-- About activity-->
-    <!-- About activity-->
     <!--flags-->
     <string name="flag_show_volume_dialog">Ses diyaloğunu göster</string>
     <string name="flag_vibrate">Titre</string>
     <string name="flag_show_toast">Ekranda mesaj göster</string>
     <string name="flag_long_press_double_vibration">Uzun basışta tekrar titre</string>
-    <string name="flag_detect_triggers_screen_off">Ekran kapalıyken tetikleyiciyi algıla</string>
     <string name="flag_repeat_build_description_start">Tekrarla</string>
     <string name="flag_repeat_build_description_limit">%dx</string>
     <string name="flag_repeat_build_description_repeat_delay">%dms sonra</string>
@@ -575,7 +569,7 @@ Kaydedilmiş ses dosyalarını ayarlardan silebilirsiniz.</string>
     <string name="stream_system">Sistem</string>
     <string name="stream_voice_call">Sesli arama</string>
     <string name="ringer_mode_normal">Normal</string>
-    <string name="ringer_mode_vibrate">Titreşim</string>
+    <string name="ringer_mode_vibrate">Titre</string>
     <string name="ringer_mode_silent">Sessiz</string>
     <string name="lens_front">Ön</string>
     <string name="lens_back">Arka</string>
@@ -710,6 +704,7 @@ Kaydedilmiş ses dosyalarını ayarlardan silebilirsiniz.</string>
     <string name="error_swipe_screen_duration_must_be_more_than_zero">0\'dan büyük olmalı!</string>
     <string name="error_swipe_screen_must_be_ten_or_less_fingers">%d veya daha az olmalı!</string>
     <string name="error_ui_element_not_found">UI öğesi bulunamadı!</string>
+    <string name="error_system_bridge_disconnected">PRO Modunun başlatılması gerekiyor</string>
     <!-- Error messages -->
     <!-- action labels -->
     <string name="action_toggle_wifi">WiFi\'yi aç/kapat</string>
@@ -723,7 +718,7 @@ Kaydedilmiş ses dosyalarını ayarlardan silebilirsiniz.</string>
     <string name="action_volume_mute">Sesi kapat</string>
     <string name="action_toggle_mute">Sesi aç/kapat</string>
     <string name="action_volume_unmute">Sesi aç</string>
-    <string name="action_volume_show_dialog">Ses kontrol panelini göster</string>
+    <string name="action_volume_show_dialog">Ses diyaloğunu göster</string>
     <string name="action_increase_stream">Akışı artır</string>
     <string name="action_increase_stream_formatted">%s akışını artır</string>
     <string name="action_decrease_stream">Akışı azalt</string>
@@ -826,10 +821,18 @@ Kaydedilmiş ses dosyalarını ayarlardan silebilirsiniz.</string>
     <string name="action_secure_lock_device">Cihazı güvenli bir şekilde kilitle</string>
     <string name="action_secure_lock_device_message">Tekrar giriş yapmak için yalnızca PIN\'inizi kullanabilirsiniz. Parmak izi tarayıcı ve yüz tanıma devre dışı bırakılacaktır. Bu, Android Pie 9.0 öncesi root olmayan cihazları kilitlemenin bulduğum tek güvenilir yoludur.</string>
     <string name="action_power_on_off_device">Cihazı uyut/uyandır</string>
-    <string name="action_power_on_off_device_message">Ekran kapalıyken tetikleyiciyi algılama seçeneğini açmanız gerekiyor!</string>
     <string name="action_consume_keyevent">Hiçbir şey yapma</string>
-    <string name="action_move_cursor">İmleci sona taşı</string>
-    <string name="action_move_to_end_of_text_message">Bu eylem bazı uygulamalarda beklendiği gibi çalışmayabilir.</string>
+    <string name="action_move_cursor">İmleci taşı</string>
+    <string name="action_move_cursor_prev_character">Önceki karaktere git</string>
+    <string name="action_move_cursor_next_character">Sonraki karaktere git</string>
+    <string name="action_move_cursor_start_word">Önceki kelimeye git</string>
+    <string name="action_move_cursor_end_word">Sonraki kelimeye git</string>
+    <string name="action_move_cursor_start_line">Önceki satıra git</string>
+    <string name="action_move_cursor_end_line">Sonraki satıra git</string>
+    <string name="action_move_cursor_start_paragraph">Paragrafın başına git</string>
+    <string name="action_move_cursor_end_paragraph">Paragrafın sonuna git</string>
+    <string name="action_move_cursor_start_page">Sayfanın başına git</string>
+    <string name="action_move_cursor_end_page">Sayfanın sonuna git</string>
     <string name="action_toggle_keyboard">Klavyeyi aç/kapat</string>
     <string name="action_toggle_keyboard_message">Bu eylem yalnızca klavyenin gösterilmesi gereken bir giriş alanına dokunduğunuzda çalışır.</string>
     <string name="action_show_keyboard">Klavyeyi göster</string>
@@ -921,12 +924,13 @@ Kaydedilmiş ses dosyalarını ayarlardan silebilirsiniz.</string>
     <string name="action_cat_keyboard">Klavye</string>
     <string name="action_cat_apps">Uygulamalar</string>
     <string name="action_cat_input">Giriş</string>
+    <string name="action_cat_flashlight">El feneri</string>
     <string name="action_cat_connectivity">Bağlantı</string>
-    <string name="action_cat_content">İçerik</string>
     <string name="action_cat_interface">Arayüz</string>
     <string name="action_cat_telephony">Telefon</string>
     <string name="action_cat_display">Ekran</string>
     <string name="action_cat_notifications">Bildirimler</string>
+    <string name="action_cat_special">Özel</string>
     <!-- action category labels -->
     <!--  Intent action type strings  -->
     <string name="intent_type_bool_header">Boolean</string>
@@ -969,7 +973,13 @@ Kaydedilmiş ses dosyalarını ayarlardan silebilirsiniz.</string>
     <string name="intent_flags_example">Intent bayrakları bit bayrakları olarak saklanır. Bu bayraklar Intent\'in nasıl işleneceğini değiştirir. Bir Etkinlik Intent\'i için bu alan boş bırakılırsa, Key Mapper varsayılan olarak FLAG_ACTIVITY_NEW_TASK kullanır. Daha fazla bilgi için Android geliştirici belgelerini görmek üzere \'dokümanlar\'a dokunun.</string>
     <!--  Intent action type strings  -->
     <!--  Tap targets  -->
+    <string name="tap_target_skip_tutorial_button">Öğreticiyi geç</string>
+    <string name="tap_target_create_key_map_title">İlk anahtar haritanı oluştur!</string>
+    <string name="tap_target_create_key_map_message">Bir anahtar haritası, bir düğmeye basıldığında cihazınızın ne yapacağını belirten bir kuraldır.</string>
     <string name="tap_target_choose_action_title">Bir eylem seçin</string>
+    <string name="tap_target_choose_action_message">Bir eylem, tetikleyiciye bastığınızda olması gereken şeydir.</string>
+    <string name="tap_target_choose_constraint_title">Bir kısıtlama seç (isteğe bağlı)</string>
+    <string name="tap_target_choose_constraint_message">Anahtar haritasının yalnızca belirli durumlarda çalışmasını istiyorsanız, örneğin, bir uygulama açıkken.</string>
     <!--  Tap targets  -->
     <!--  About  -->
     <string name="about_link_github">GitHub</string>
@@ -977,7 +987,7 @@ Kaydedilmiş ses dosyalarını ayarlardan silebilirsiniz.</string>
     <string name="about_link_translations">Çeviriler</string>
     <string name="about_version">Sürüm %s</string>
     <string name="about_link_rate">Oyla</string>
-    <string name="about_link_changelog">Değişiklik Günlüğü</string>
+    <string name="about_link_changelog">Değişiklik günlüğü</string>
     <string name="about_link_discord">Discord</string>
     <string name="about_header_boring_stuff">Sıkıcı şeyler</string>
     <string name="about_license_title">Lisans</string>
@@ -1005,15 +1015,10 @@ Kaydedilmiş ses dosyalarını ayarlardan silebilirsiniz.</string>
     <string name="trigger_error_floating_buttons_not_purchased">Kayan düğmeleri satın almanız gerekiyor.</string>
     <string name="trigger_error_floating_button_deleted">Düğme silindi.</string>
     <string name="trigger_error_floating_button_deleted_title">Kayan düğme</string>
-    <string name="setup_assistant_trigger_title">Yan tuş tetikleyicisini ayarla</string>
-    <string name="setup_assistant_trigger_attention">Dikkat!</string>
-    <string name="setup_assistant_trigger_text">Bu tetikleyiciyi nasıl ayarlayacağınızı açıklayan web sitemizdeki talimatları okumanız gerekiyor. Key Mapper size rehberlik etmeyecek.</string>
-    <string name="setup_assistant_trigger_read_instructions_button">Talimatları oku</string>
-    <string name="setup_assistant_trigger_select_type_button">Tetikleyici türünü seç</string>
     <string name="trigger_error_product_verification_failed">Satın alma doğrulanamıyor. İnternet bağlantınız var mı?</string>
     <!--  Purchasing  -->
     <string name="unlock_product_button">Kilidi aç (%s)</string>
-    <string name="use_product_button">Kullan</string>
+    <string name="purchased_product_button">Kullan</string>
     <string name="loading_product_button">Yükleniyor…</string>
     <string name="purchased_product_label">Satın alındı!</string>
     <string name="retry_loading_price_button">Fiyatı tekrar almayı dene</string>
@@ -1031,7 +1036,7 @@ Kaydedilmiş ses dosyalarını ayarlardan silebilirsiniz.</string>
     <string name="purchasing_error_assistant_not_purchased_home_screen">Yan tuş tetikleyici özelliğini satın almanız gerekiyor! Tuş eşlemesine dokunun ve ardından \'Gelişmiş tetikleyiciler\'e tıklayarak satın alın.</string>
     <string name="purchasing_error_floating_buttons_not_purchased_home_screen">Kayan düğmeler özelliğini satın almanız gerekiyor! Tuş eşlemesine dokunun ve ardından \'Gelişmiş tetikleyiciler\'e tıklayarak satın alın.</string>
     <string name="purchase_thank_you_title">Uygulamayı desteklediğiniz için teşekkürler ❤️!</string>
-    <string name="purchase_thank_you_message">Satın alma işleminiz başarılı oldu. Key Mapper\'ın ücretli bir kullanıcısı olarak uygulamayı kullanmanıza yardımcı olmak için öncelikli destek alacaksınız. Artık bu sayfada geliştiriciyle iletişime geçmek için bir düğme var.</string>
+    <string name="purchase_thank_you_message">Satın alımınız başarılı oldu. Key Mapper\'ın ücretli bir kullanıcısı olarak uygulamayı kullanmanıza yardımcı olmak için öncelikli destek alacaksınız. Artık mağazada geliştiriciyle iletişime geçmek için bir düğme bulunmaktadır.</string>
     <string name="purchasing_not_implemented_bottom_sheet_text">Gelişmiş tetikleyiciler ücretli bir özelliktir ancak siz FOSS yapısını indirdiniz ve bu yapı Google Play faturalandırmasını içermiyor. Bu özelliğe erişmek için lütfen Key Mapper\'ı Google Play\'den indirin.</string>
     <string name="purchasing_download_key_mapper_from_google_play">Play sürümünü indir</string>
     <!--  Dpad trigger setup bottom sheet  -->
@@ -1042,7 +1047,7 @@ Kaydedilmiş ses dosyalarını ayarlardan silebilirsiniz.</string>
     <string name="setup_gui_keyboard_install_keyboard_button_disabled">Yüklendi</string>
     <string name="setup_gui_keyboard_enable_keyboard_text">2. Klavyeyi etkinleştir</string>
     <string name="setup_gui_keyboard_enable_keyboard_button">Etkinleştir</string>
-    <string name="setup_gui_keyboard_enable_keyboard_button_disabled">Etkinleştirildi</string>
+    <string name="setup_gui_keyboard_enable_keyboard_button_disabled">Etkin</string>
     <string name="setup_gui_keyboard_choose_keyboard_text">3. Klavyeyi kullan</string>
     <string name="setup_gui_keyboard_choose_keyboard_button">Klavyeyi değiştir</string>
     <string name="setup_gui_keyboard_choose_keyboard_button_disabled">Klavye seçildi</string>
@@ -1080,7 +1085,7 @@ Kaydedilmiş ses dosyalarını ayarlardan silebilirsiniz.</string>
     <string name="floating_buttons_all_done_constraints_dialog_title">Kısıtlamalar</string>
     <string name="floating_buttons_all_done_constraints_dialog_message">Bu düğmenin yalnızca bazı uygulamalarda ekranda olmasını ister misiniz? Bu tuş eşlemesi için “Kısıtlamalar” sekmesinde bir “Ön plandaki uygulama” kısıtlaması ekleyin.</string>
     <string name="choose_floating_layout_title">Bir düzen seçin</string>
-    <string name="bottom_app_bar_back_content_description">Geri</string>
+    <string name="bottom_app_bar_back_content_description">Arka</string>
     <string name="bottom_app_bar_help_content_description">Yardım</string>
     <string name="floating_menu_done_dialog_title">Yardım mı lazım?</string>
     <string name="floating_menu_done_dialog_create_button">Düğme oluştur</string>
@@ -1209,6 +1214,16 @@ Kaydedilmiş ses dosyalarını ayarlardan silebilirsiniz.</string>
     <string name="trigger_key_fingerprint_gesture_left">Parmak izi okuyucuda sola kaydır</string>
     <string name="trigger_key_fingerprint_gesture_right">Parmak izi okuyucuda sağa kaydır</string>
     <string name="trigger_shortcuts_header">Gelişmiş tetikleyiciler</string>
+    <string name="trigger_key_unknown_key_code">Tuş kodu %d</string>
+    <string name="trigger_key_unknown_scan_code">Tarama kodu %d</string>
+    <string name="trigger_key_scan_code_detection_flag">Kodu tara</string>
+    <string name="trigger_scan_code_detection_explanation">Tuşlar, bir \'key code\' (tuş kodu) ya da \'scan code\' (tarama kodu) ile tanımlanabilir. Bir tarama kodu, tuş kodundan daha benzersizdir ancak tetikleyiciniz başka cihazlarda çalışmayabilir. Tuş kodlarını kullanmanızı öneririz.</string>
+    <string name="trigger_use_key_code_button_disabled">Bilinmeyen tuş kodu</string>
+    <string name="trigger_use_key_code_button_enabled">Tuş kodu %d kullan</string>
+    <string name="trigger_use_scan_code_button_enabled">Tarama kodu %d kullan</string>
+    <string name="trigger_use_scan_code_button_disabled">Kaydedilmiş tarama kodu yok</string>
+    <string name="trigger_record_with_pro_mode">PRO modu ile kaydet</string>
+    <string name="trigger_list_add_more_button">Daha fazla ekle</string>
     <!--  Action screen  -->
     <string name="action_list_item_remove">Kaldır</string>
     <string name="action_list_item_edit">Düzenle</string>
@@ -1262,4 +1277,158 @@ Kaydedilmiş ses dosyalarını ayarlardan silebilirsiniz.</string>
         <item quantity="one">+%d devralınan kısıtlamalar</item>
         <item quantity="other">+%d devralınan kısıtlamalar</item>
     </plurals>
+    <!--  Pro mode  -->
+    <string name="pro_mode_app_bar_title">PRO modu</string>
+    <string name="pro_mode_warning_title">Önemli!</string>
+    <string name="pro_mode_warning_text">PRO modu ile tuşları yeniden eşlemek tehlikelidir ve yanlış eşlerseniz çalışmalarını durdurabilir.\n\nBir hata yaparsanız, güç ve ses düğmelerini 30 saniye basılı tutarak cihazınızı zorla yeniden başlatmanız gerekebilir — bunun nasıl yapılacağı konusunda cihazınızın kılavuzuna veya internete başvurun.</string>
+    <string name="pro_mode_warning_understand_button_countdown">%d…</string>
+    <string name="pro_mode_warning_understand_button_not_completed">Anlıyorum</string>
+    <string name="pro_mode_warning_understand_button_completed">Anladım</string>
+    <string name="pro_mode_set_up_title">Kurulum</string>
+    <string name="pro_mode_root_detected_title">Root algılandı</string>
+    <string name="pro_mode_root_detected_text">Key Mapper\'a root izni vererek kurulum sürecini atlayabilirsiniz. Bu, Key Mapper\'ın açılışta PRO modunu otomatik olarak başlatmasını da sağlayacaktır.</string>
+    <string name="pro_mode_root_detected_button_start_service">PRO modunu başlat</string>
+    <string name="pro_mode_shizuku_detected_title">Shizuku algılandı</string>
+    <string name="pro_mode_shizuku_detected_text">Key Mapper\'a Shizuku izni vererek kurulum sürecini atlayabilirsiniz.</string>
+    <string name="pro_mode_shizuku_detected_button_start">Shizuku\'yu başlat</string>
+    <string name="pro_mode_shizuku_detected_button_request_permission">İzin iste</string>
+    <string name="pro_mode_shizuku_detected_button_start_service">PRO modunu başlat</string>
+    <string name="pro_mode_set_up_with_key_mapper_title">Key Mapper ile kur</string>
+    <string name="pro_mode_set_up_with_key_mapper_button">Devam et</string>
+    <string name="pro_mode_set_up_with_key_mapper_button_incompatible">Devam et (Android 11+)</string>
+    <string name="pro_mode_options_title">Seçenekler</string>
+    <string name="pro_mode_enable_for_all_key_maps_title">Tüm tuş eşlemeleri için PRO modunu etkinleştir</string>
+    <string name="pro_mode_enable_for_all_key_maps_text">Key Mapper yeniden eşleme için ADB Shell\'i kullanacak</string>
+    <string name="pro_mode_settings_unavailable_text">Bu ayarlar, uyarıyı kabul edene kadar kullanılamaz.</string>
+    <string name="pro_mode_service_started">PRO modu hizmeti çalışıyor</string>
+    <string name="pro_mode_stop_service_button">Durdur</string>
+    <string name="title_pref_pro_mode_auto_start">Açılışta otomatik olarak başlat</string>
+    <string name="summary_pref_pro_mode_auto_start">Cihazınızı her açtığınızda veya yeniden başlattığınızda PRO Modu kendini başlatacaktır</string>
+    <string name="pro_mode_emergency_tip_title">Acil durum ipucu</string>
+    <string name="pro_mode_emergency_tip_text">Güç düğmeniz çalışmazsa, PRO Modu\'nu devre dışı bırakmak için güç düğmesini 10 saniye basılı tutun ve bırakın.</string>
+    <string name="pro_mode_setup_wizard_title">Kurulum sihirbazı</string>
+    <string name="pro_mode_setup_wizard_step_n">Adım %d / %d</string>
+    <string name="pro_mode_setup_wizard_use_assistant">Etkileşimli kurulum asistanını kullan</string>
+    <string name="pro_mode_setup_wizard_use_assistant_description">Ayarlarla otomatik olarak etkileşime gir</string>
+    <string name="pro_mode_setup_wizard_use_assistant_enable_accessibility_service">Önce erişilebilirlik servisini etkinleştir</string>
+    <string name="pro_mode_setup_wizard_watch_tutorial_button">Eğitimi izle</string>
+    <string name="pro_mode_setup_wizard_enable_accessibility_service_button">Servisi başlat</string>
+    <string name="pro_mode_setup_wizard_go_to_settings_button">Ayarlara git</string>
+    <string name="pro_mode_setup_wizard_start_service_button">Servisi başlat</string>
+    <string name="pro_mode_setup_wizard_enable_accessibility_service_title">Erişilebilirlik servisini etkinleştir</string>
+    <string name="pro_mode_setup_wizard_enable_accessibility_service_description">Key Mapper, PRO modunu kurmanıza yardımcı olmak için bir servis kullanır. Sıradan tuş eşlemeleri için de kullanışlıdır.</string>
+    <string name="pro_mode_setup_wizard_enable_developer_options_title">Geliştirici seçeneklerini etkinleştir</string>
+    <string name="pro_mode_setup_wizard_enable_developer_options_description">Key Mapper\'ın PRO modunu başlatmak için Android Debug Bridge\'i kullanması gerekir ve bunun için geliştirici seçeneklerini etkinleştirmeniz gerekir.</string>
+    <string name="pro_mode_setup_wizard_connect_wifi_title">Bir WiFi ağına bağlan</string>
+    <string name="pro_mode_setup_wizard_connect_wifi_description">Key Mapper\'ın ADB\'yi etkinleştirmek için bir WiFi ağına ihtiyacı var. İnternet bağlantısına ihtiyacınız yok.\n\nWiFi ağı yok mu? Başka birinin telefonundan bir hotspot kullanın.</string>
+    <string name="pro_mode_setup_wizard_enable_wireless_debugging_title">Kablosuz hata ayıklamayı etkinleştir</string>
+    <string name="pro_mode_setup_wizard_enable_wireless_debugging_description">Key Mapper, yeniden eşleme ve giriş hizmetini başlatmak için kablosuz hata ayıklamayı kullanır.</string>
+    <string name="pro_mode_setup_wizard_pair_wireless_debugging_title">Kablosuz hata ayıklamayı eşleştir</string>
+    <string name="pro_mode_setup_wizard_pair_wireless_debugging_description">Key Mapper\'ın yeniden eşleme ve giriş hizmetini başlatabilmesi için kablosuz hata ayıklama ile eşleşmesi gerekir.</string>
+    <string name="pro_mode_setup_wizard_start_service_title">Servisi başlat</string>
+    <string name="pro_mode_setup_wizard_start_service_description">Key Mapper\'ın PRO modu hizmetini başlatmak için Android Debug Bridge\'e bağlanması gerekir.</string>
+    <string name="pro_mode_setup_wizard_enable_notification_permission_title">Bildirimlere izin ver</string>
+    <string name="pro_mode_setup_wizard_enable_notification_permission_description">Key Mapper\'ın kurulum sürecinde herhangi bir sorun olması durumunda sizi bilgilendirmek için izne ihtiyacı var.</string>
+    <string name="pro_mode_setup_wizard_enable_notification_permission_button">İzin ver</string>
+    <string name="pro_mode_setup_assistant_notification_channel">Kurulum asistanı</string>
+    <string name="pro_mode_setup_wizard_complete_title">PRO modu çalışıyor</string>
+    <string name="pro_mode_setup_wizard_complete_text">Artık ekran kapalıyken tuşları yeniden eşleyebilir ve daha fazla eylem kullanabilirsiniz.</string>
+    <string name="pro_mode_setup_wizard_complete_button">Bitir</string>
+    <string name="pro_mode_setup_notification_tap_build_number_title">Geliştirici seçeneklerini etkinleştir</string>
+    <string name="pro_mode_setup_notification_tap_build_number_text">Yapı numarasına tekrar tekrar dokun</string>
+    <string name="pro_mode_setup_notification_pairing_title">Otomatik olarak eşleştiriliyor</string>
+    <string name="pro_mode_setup_notification_pairing_text">Eşleştirme kodu ve portu aranıyor…</string>
+    <string name="pro_mode_setup_notification_pairing_button_not_found_title">Eşleştirme portu ve kodu bulunamadı</string>
+    <string name="pro_mode_setup_notification_pairing_button_not_found_text">Eşleştirme koduyla eşleştirmek için düğmeye dokunun ve kodu buraya yazın</string>
+    <string name="pro_mode_setup_notification_start_system_bridge_failed_title">PRO Modu başlatılamadı</string>
+    <string name="pro_mode_setup_notification_start_system_bridge_failed_text">Tekrar kurmak için dokunun. Tekrar tekrar başarısız olursa ADB eşleştirmeyi ve telefonunuzu yeniden başlatmayı deneyin.</string>
+    <string name="pro_mode_setup_notification_auto_start_system_bridge_title">PRO modu otomatik başlatılıyor</string>
+    <string name="pro_mode_setup_notification_auto_start_system_bridge_root_text">Root kullanılıyor</string>
+    <string name="pro_mode_setup_notification_auto_start_system_bridge_shizuku_text">Shizuku kullanılıyor</string>
+    <string name="pro_mode_setup_notification_auto_start_system_bridge_adb_text">WiFi üzerinden ADB kullanılıyor</string>
+    <string name="pro_mode_setup_notification_system_bridge_started_title">PRO modu başlatıldı</string>
+    <string name="pro_mode_setup_notification_system_bridge_started_text">Yeniden eşlemede iyi eğlenceler! ❤️</string>
+    <string name="pro_mode_setup_notification_invalid_pairing_code_title">Eşleştirme başarısız</string>
+    <string name="pro_mode_setup_notification_invalid_pairing_code_text">Eşleştirme kodunu gönderirken eşleştirme kodu açılır penceresini ekranda tutun</string>
+    <string name="pro_mode_setup_notification_action_input_pairing_code">Eşleştirme kodunu gir</string>
+    <string name="pro_mode_info_card_title">PRO modu ile ne yapabilirim?</string>
+    <string name="pro_mode_info_card_description">📲 Güç düğmeniz gibi daha fazla tuşu yeniden eşleyebilirsiniz.\n⌨️ Tuş kodu eylemleriyle herhangi bir klavyeyi kullanın.\n⭐️ Aşağıdaki eylemlerin kilidi açılır: WiFi, Bluetooth, mobil veri, NFC ve uçak modu, durum çubuğunu daralt ve cihazı uyut/uyandır.</string>
+    <string name="pro_mode_info_card_show_content_description">PRO modu bilgilerini göster</string>
+    <string name="pro_mode_info_card_dismiss_content_description">Kapat</string>
+    <string name="system_bridge_died_notification_title">PRO modu beklenmedik şekilde durdu</string>
+    <string name="system_bridge_died_notification_restarting_text">Otomatik olarak yeniden başlatılıyor…</string>
+    <string name="system_bridge_died_notification_not_restarting_text">Otomatik olarak yeniden başlatılmıyor. Servisi siz durdurmuyorsanız, sorunu geliştiriciye bildirin.</string>
+    <!-- Trigger Discover Screen -->
+    <string name="trigger_discover_screen_title">Keşfet</string>
+    <string name="trigger_discover_screen_subtitle">Neyi yeniden eşlemek istersiniz?</string>
+    <string name="trigger_discover_section_on_device_buttons">Cihaz üzerindeki düğmeler</string>
+    <string name="trigger_discover_section_peripherals_gaming">Çevre birimleri ve oyun</string>
+    <string name="trigger_discover_section_floating_buttons">Kayan düğmeler</string>
+    <string name="trigger_discover_shortcut_volume">Ses</string>
+    <string name="trigger_discover_shortcut_assistant">Asistan</string>
+    <string name="trigger_discover_shortcut_power">Güç</string>
+    <string name="trigger_discover_shortcut_fingerprint_gesture">Parmak izi hareketi</string>
+    <string name="trigger_discover_shortcut_keyboard">Klavye</string>
+    <string name="trigger_discover_shortcut_mouse">Fare</string>
+    <string name="trigger_discover_shortcut_gamepad">Oyun kumandası</string>
+    <string name="trigger_discover_shortcut_other">Diğer</string>
+    <string name="trigger_discover_shortcut_custom">Özel</string>
+    <string name="trigger_discover_shortcut_notch">Çentik</string>
+    <string name="trigger_discover_shortcut_lock_screen">Kilit ekranı</string>
+    <string name="trigger_discover_promo_title">Telefonunuzu bir üst seviyeye taşıyın</string>
+    <string name="trigger_discover_promo_description">Kayan düğmeler, herhangi bir uygulama, oyun veya kilit ekranınızdaki anlık kısayollardır. Desteğiniz Key Mapper\'ı hayatta tutar ❤️</string>
+    <string name="trigger_discover_promo_see_action">Çalışırken görün</string>
+    <string name="trigger_discover_promo_dismiss">Kapat</string>
+    <string name="trigger_discover_promo_unlock">Sadece %s karşılığında kilidi açın</string>
+    <!-- Trigger Discover Screen -->
+    <!-- Trigger Setup bottom sheet -->
+    <string name="trigger_setup_volume_title">Ses düğmesi</string>
+    <string name="trigger_setup_keyboard_title">Klavye</string>
+    <string name="trigger_setup_power_title">Güç düğmesi</string>
+    <string name="trigger_setup_assistant_trigger_title">Asistan tetikleyicisi</string>
+    <string name="trigger_setup_assistant_trigger_add_on">Asistan tetikleyici eklentisi</string>
+    <string name="trigger_setup_mouse_title">Fare düğmesi</string>
+    <string name="trigger_setup_gamepad_title">Oyun kumandası düğmesi</string>
+    <string name="trigger_setup_other_title">Diğer düğme</string>
+    <string name="trigger_setup_fingerprint_reader_title">Parmak izi okuyucu hareketi</string>
+    <string name="trigger_setup_no_trigger_detected_title">Tetikleyici algılanmadı</string>
+    <string name="trigger_setup_add_trigger_button">Tetikleyici eklemek için dokunun</string>
+    <string name="trigger_setup_requirements_not_met_button">Gereksinimler karşılanmadı</string>
+    <string name="trigger_setup_get_help_button">Yardım al</string>
+    <string name="trigger_setup_status_can_not_remap">Bu düğmeyi yeniden eşleyemezsiniz</string>
+    <string name="trigger_setup_status_can_not_use_feature">Bu özelliği kullanamazsınız</string>
+    <string name="trigger_setup_status_might_remap_button">Bu düğmeyi yeniden eşleyebilirsiniz</string>
+    <string name="trigger_setup_status_might_remap_device">Bu cihazı yeniden eşleyebilirsiniz</string>
+    <string name="trigger_setup_status_might_use_feature">Bu özelliği kullanabilirsiniz</string>
+    <string name="trigger_setup_status_remap_button_possible">Bu düğmeyi yeniden eşleyebilirsiniz</string>
+    <string name="trigger_setup_status_remap_device_possible">Bu cihazı yeniden eşleyebilirsiniz</string>
+    <string name="trigger_setup_status_feature_possible">Bu özelliği kullanabilirsiniz</string>
+    <string name="trigger_setup_screen_off_option">Ekran kapalıyken yeniden eşle</string>
+    <string name="trigger_setup_options_title">Seçenekler</string>
+    <string name="trigger_setup_requirements_title">Gereksinimler</string>
+    <string name="trigger_setup_not_detected_information">Düğmeleriniz hala algılanamıyorsa, lütfen Discord sunucumuza katılın ve bize bildirin. Düğmelerinizi yeniden eşlemenize yardımcı olmak için elimizden gelenin en iyisini yapacağız.</string>
+    <string name="trigger_setup_get_help_information">Düğmeleriniz algılanamıyorsa lütfen Discord sunucumuza katılın ve bize bildirin. Düğmelerinizi yeniden eşlemenize yardımcı olmak için elimizden gelenin en iyisini yapacağız.</string>
+    <string name="trigger_setup_information_title">Bilgi</string>
+    <string name="trigger_setup_accessibility_service_title">Erişilebilirlik servisi</string>
+    <string name="trigger_setup_accessibility_service_enable_button">Etkinleştir</string>
+    <string name="trigger_setup_accessibility_service_running_button">Çalışıyor</string>
+    <string name="trigger_setup_purchased_button">Satın alındı</string>
+    <string name="trigger_setup_pro_mode_title">PRO modu</string>
+    <string name="trigger_setup_pro_mode_enable_button">Ücretsiz etkinleştir</string>
+    <string name="trigger_setup_pro_mode_running_button">Çalışıyor</string>
+    <string name="trigger_setup_pro_mode_unsupported">Bu Android sürümünde mevcut değil</string>
+    <string name="trigger_setup_assistant_information">Cihaz asistanınız bir donanım düğmesiyle tetikleniyorsa, PRO moduyla ücretsiz olarak yeniden eşlemek mümkün olabilir. Tetikleyici sayfasından \'Diğer\'i seçmeyi deneyin ve talimatları izleyin.</string>
+    <string name="trigger_setup_assistant_requirements_met_info">Bu tetikleyici, cihaza göre değişen bazı kurulumlar gerektirir. Lütfen\ </string>
+    <string name="trigger_setup_assistant_read_instructions_link">talimatları okuyun</string>
+    <string name="trigger_setup_assistant_read_instructions_button">Talimatları oku</string>
+    <string name="trigger_setup_assistant_select_type_button">Tetikleyici türünü seç</string>
+    <string name="trigger_setup_power_information">Cihaz asistanınız güç düğmesiyle tetikleniyorsa, asistanı yeniden eşlemek mümkün olabilir, bu da PRO modunu kullanmanıza gerek olmadığı anlamına gelir. Tetikleyici sayfasından \'Asistan\'ı seçmeyi deneyin ve talimatları izleyin.</string>
+    <string name="trigger_setup_gamepad_type_dpad">Yön tuşu (D-Pad) düğmesi</string>
+    <string name="trigger_setup_gamepad_type_simple_buttons">Diğer basit düğmeler</string>
+    <string name="trigger_setup_gamepad_information_dpad">Yön tuşu (DPAD) düğmelerini yeniden eşlerken normal ekran klavyenizi kullanamayacaksınız.</string>
+    <string name="trigger_setup_input_method_title">Key Mapper Klavyesi</string>
+    <string name="trigger_setup_input_method_enable_button">Klavyeyi etkinleştir</string>
+    <string name="trigger_setup_input_method_choose_button">Klavye seç</string>
+    <string name="trigger_setup_input_method_running_button">Çalışıyor</string>
+    <!-- Trigger Setup bottom sheet -->
 </resources>

@@ -2,17 +2,25 @@ package io.github.sds100.keymapper.data
 
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 
 object Keys {
     val darkTheme = stringPreferencesKey("pref_dark_theme_mode")
-    val hasRootPermission = booleanPreferencesKey("pref_allow_root_features")
+
+    /**
+     * libsu was not used in version 3.2.1 and older. The user had to manually enable a setting
+     * for root features to be enabled.
+     */
+    @Deprecated("Now use the libsu library to detect whether the device is rooted.")
+    val hasRootPermissionLegacy = booleanPreferencesKey("pref_allow_root_features")
+
     val shownAppIntro = booleanPreferencesKey("pref_first_time")
-    val showImePickerNotification = booleanPreferencesKey("pref_show_ime_notification")
-    val showToggleKeyMapsNotification = booleanPreferencesKey("pref_show_remappings_notification")
-    val showToggleKeyboardNotification =
-        booleanPreferencesKey("pref_toggle_key_mapper_keyboard_notification")
+
+//    val showToggleKeyMapsNotification = booleanPreferencesKey("pref_show_remappings_notification")
+//    val showToggleKeyboardNotification =
+//        booleanPreferencesKey("pref_toggle_key_mapper_keyboard_notification")
 
     val devicesThatChangeIme = stringSetPreferencesKey("pref_devices_that_change_ime")
     val changeImeOnDeviceConnect =
@@ -21,8 +29,8 @@ object Keys {
     val showToastWhenAutoChangingIme =
         booleanPreferencesKey("pref_show_toast_when_auto_changing_ime")
 
-    val devicesThatShowImePicker = stringSetPreferencesKey("pref_devices_show_ime_picker")
-    val showImePickerOnDeviceConnect = booleanPreferencesKey("pref_auto_show_ime_picker")
+//    val devicesThatShowImePicker = stringSetPreferencesKey("pref_devices_show_ime_picker")
+//    val showImePickerOnDeviceConnect = booleanPreferencesKey("pref_auto_show_ime_picker")
 
     val forceVibrate = booleanPreferencesKey("pref_force_vibrate")
     val defaultLongPressDelay = intPreferencesKey("pref_long_press_delay")
@@ -37,20 +45,29 @@ object Keys {
     val automaticBackupLocation = stringPreferencesKey("pref_automatic_backup_location")
     val mappingsPaused = booleanPreferencesKey("pref_keymaps_paused")
     val hideHomeScreenAlerts = booleanPreferencesKey("pref_hide_home_screen_alerts")
-    val acknowledgedGuiKeyboard = booleanPreferencesKey("pref_acknowledged_gui_keyboard")
+
+    //    val acknowledgedGuiKeyboard = booleanPreferencesKey("pref_acknowledged_gui_keyboard")
     val showDeviceDescriptors = booleanPreferencesKey("pref_show_device_descriptors")
 
     //    val approvedAssistantTriggerFeaturePrompt =
 //        booleanPreferencesKey("pref_approved_assistant_trigger_feature_prompt")
-    val approvedFloatingButtonFeaturePrompt =
-        booleanPreferencesKey("pref_approved_floating_button_feature_prompt")
+//    val approvedFloatingButtonFeaturePrompt =
+//        booleanPreferencesKey("pref_approved_floating_button_feature_prompt")
 
     val shownParallelTriggerOrderExplanation =
         booleanPreferencesKey("key_shown_parallel_trigger_order_warning")
     val shownSequenceTriggerExplanation =
         booleanPreferencesKey("key_shown_sequence_trigger_explanation_dialog")
-    val shownKeyCodeToScanCodeTriggerExplanation =
-        booleanPreferencesKey("key_shown_keycode_to_scancode_trigger_explanation_dialog")
+    val shownTriggerConstraintsTip =
+        booleanPreferencesKey("key_shown_trigger_constraints_tip")
+    val shownCapsLockProModeTip =
+        booleanPreferencesKey("key_shown_caps_lock_pro_mode_compatibility_tip")
+    val shownVolumeButtonsProModeTip =
+        booleanPreferencesKey("key_shown_volume_buttons_pro_mode_tip")
+    val shownScreenPinningTip =
+        booleanPreferencesKey("key_shown_screen_pinning_tip")
+    val shownRingerModeTip =
+        booleanPreferencesKey("key_shown_ringer_mode_tip")
     val lastInstalledVersionCodeHomeScreen =
         intPreferencesKey("last_installed_version_home_screen")
     val lastInstalledVersionCodeBackground =
@@ -59,22 +76,23 @@ object Keys {
     val fingerprintGesturesAvailable =
         booleanPreferencesKey("fingerprint_gestures_available")
 
-    val rerouteKeyEvents = booleanPreferencesKey("key_reroute_key_events_from_specified_devices")
-    val devicesToRerouteKeyEvents =
-        stringSetPreferencesKey("key_devices_to_reroute_key_events")
+//    val rerouteKeyEvents = booleanPreferencesKey("key_reroute_key_events_from_specified_devices")
+//    val devicesToRerouteKeyEvents = stringSetPreferencesKey("key_devices_to_reroute_key_events")
 
     val log = booleanPreferencesKey("key_log")
     val shownShizukuPermissionPrompt = booleanPreferencesKey("key_shown_shizuku_permission_prompt")
     val savedWifiSSIDs = stringSetPreferencesKey("key_saved_wifi_ssids")
 
     val neverShowDndAccessError = booleanPreferencesKey("key_never_show_dnd_error")
-    val neverShowTriggerKeyboardIconExplanation =
-        booleanPreferencesKey("key_never_show_keyboard_icon_explanation")
+    val shownTriggerKeyboardIconExplanation =
+        booleanPreferencesKey("key_shown_keyboard_icon_explanation")
 
     val neverShowDpadImeTriggerError =
         booleanPreferencesKey("key_never_show_dpad_ime_trigger_error")
-    val neverShowNoKeysRecordedError =
-        booleanPreferencesKey("key_never_show_no_keys_recorded_error")
+
+//    val neverShowNoKeysRecordedError =
+//        booleanPreferencesKey("key_never_show_no_keys_recorded_error")
+
     val sortOrderJson = stringPreferencesKey("key_keymaps_sort_order_json")
     val sortShowHelp = booleanPreferencesKey("key_keymaps_sort_show_help")
 
@@ -95,18 +113,55 @@ object Keys {
     val shownTapTargetCreateKeyMap =
         booleanPreferencesKey("key_shown_tap_target_create_key_map")
 
-    val shownTapTargetRecordTrigger =
-        booleanPreferencesKey("key_shown_tap_target_record_trigger")
-
-    val shownTapTargetAdvancedTriggers =
-        booleanPreferencesKey("key_shown_tap_target_advanced_triggers")
-
     val shownTapTargetChooseAction =
         booleanPreferencesKey("key_shown_tap_target_choose_action")
 
-    val shownTapTargetChooseConstraint =
-        booleanPreferencesKey("key_shown_tap_target_choose_constraint")
+//    val shownTapTargetChooseConstraint =
+//        booleanPreferencesKey("key_shown_tap_target_choose_constraint")
 
-    val skipTapTargetTutorial =
-        booleanPreferencesKey("key_skip_tap_target_tutorial")
+//    val skipTapTargetTutorial =
+//        booleanPreferencesKey("key_skip_tap_target_tutorial")
+
+    val isProModeWarningUnderstood =
+        booleanPreferencesKey("key_is_pro_mode_warning_understood")
+
+    val isProModeInteractiveSetupAssistantEnabled =
+        booleanPreferencesKey("key_is_pro_mode_setup_assistant_enabled")
+
+    val isProModeInfoDismissed =
+        booleanPreferencesKey("key_is_pro_mode_info_dismissed")
+
+    val isSystemBridgeKeepAliveEnabled =
+        booleanPreferencesKey("key_is_pro_mode_auto_start_boot_enabled")
+
+    val isSystemBridgeEmergencyKilled =
+        booleanPreferencesKey("key_is_system_bridge_emergency_killed")
+
+    val isSystemBridgeStoppedByUser =
+        booleanPreferencesKey("key_is_system_bridge_stopped_by_user")
+
+    /**
+     * Whether the user has started the system bridge before.
+     */
+    val isSystemBridgeUsed = booleanPreferencesKey("key_is_system_bridge_used")
+
+    /**
+     * The last time the system bridge was auto started in time since boot.
+     * Uses SystemClock.elapsedRealtime().
+     */
+    val systemBridgeLastAutoStartTime = longPreferencesKey("key_system_bridge_last_auto_start_time")
+
+    val keyEventActionsUseSystemBridge =
+        booleanPreferencesKey("key_key_event_actions_use_system_bridge")
+
+    val shellCommandScriptText = stringPreferencesKey("key_shell_command_script_text")
+
+    /**
+     * This is stored as true when PRO Mode has been auto started after updating
+     * to 4.0 and Key Mapper previously had root or shizuku permission.
+     */
+    val handledUpgradeToProMode = booleanPreferencesKey("key_handled_upgrade_to_pro_mode")
+
+    val handledMigrateScreenOffKeyMapsNotification =
+        booleanPreferencesKey("key_handled_migrate_screen_off_key_maps_notification")
 }

@@ -13,18 +13,21 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.navigation.NavController
-import io.github.sds100.keymapper.base.NavBaseAppDirections
 import io.github.sds100.keymapper.base.R
+import io.github.sds100.keymapper.base.utils.navigation.NavDestination
+import io.github.sds100.keymapper.base.utils.navigation.NavigationProvider
+import io.github.sds100.keymapper.base.utils.navigation.navigate
 import io.github.sds100.keymapper.base.utils.ui.str
 import io.github.sds100.keymapper.common.BuildConfigProvider
+import io.github.sds100.keymapper.common.utils.onFailure
 import io.github.sds100.keymapper.system.DeviceAdmin
 import io.github.sds100.keymapper.system.notifications.NotificationReceiverAdapterImpl
 import io.github.sds100.keymapper.system.permissions.AndroidPermissionAdapter
 import io.github.sds100.keymapper.system.permissions.Permission
 import io.github.sds100.keymapper.system.shizuku.ShizukuAdapter
-import io.github.sds100.keymapper.system.shizuku.ShizukuUtils
 import io.github.sds100.keymapper.system.url.UrlUtils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import splitties.alertdialog.appcompat.messageResource
 import splitties.alertdialog.appcompat.negativeButton
 import splitties.alertdialog.appcompat.neutralButton
@@ -40,6 +43,8 @@ class RequestPermissionDelegate(
     private val notificationReceiverAdapter: NotificationReceiverAdapterImpl,
     private val buildConfigProvider: BuildConfigProvider,
     private val shizukuAdapter: ShizukuAdapter,
+    private val navigationProvider: NavigationProvider,
+    private val coroutineScope: CoroutineScope,
 ) {
 
     private val startActivityForResultLauncher =
@@ -60,37 +65,40 @@ class RequestPermissionDelegate(
             permissionAdapter.onPermissionsChanged()
         }
 
-    fun requestPermission(permission: Permission, navController: NavController?) {
+    fun requestPermission(permission: Permission) {
         when (permission) {
             Permission.WRITE_SETTINGS -> requestWriteSettings()
             Permission.CAMERA -> requestPermissionLauncher.launch(Manifest.permission.CAMERA)
             Permission.DEVICE_ADMIN -> requestDeviceAdmin()
-            Permission.READ_PHONE_STATE -> requestPermissionLauncher.launch(Manifest.permission.READ_PHONE_STATE)
+            Permission.READ_PHONE_STATE -> requestPermissionLauncher.launch(
+                Manifest.permission.READ_PHONE_STATE,
+            )
             Permission.ACCESS_NOTIFICATION_POLICY -> requestAccessNotificationPolicy()
             Permission.WRITE_SECURE_SETTINGS -> requestWriteSecureSettings()
             Permission.NOTIFICATION_LISTENER -> notificationReceiverAdapter.start()
-            Permission.CALL_PHONE -> requestPermissionLauncher.launch(Manifest.permission.CALL_PHONE)
-            Permission.ANSWER_PHONE_CALL -> requestPermissionLauncher.launch(Manifest.permission.ANSWER_PHONE_CALLS)
-            Permission.FIND_NEARBY_DEVICES -> requestPermissionLauncher.launch(Manifest.permission.BLUETOOTH_CONNECT)
-            Permission.ROOT -> {
-                require(navController != null) { "nav controller can't be null!" }
-                requestRootPermission(navController)
-            }
+            Permission.CALL_PHONE -> requestPermissionLauncher.launch(
+                Manifest.permission.CALL_PHONE,
+            )
+            Permission.SEND_SMS -> requestPermissionLauncher.launch(Manifest.permission.SEND_SMS)
+            Permission.ANSWER_PHONE_CALL -> requestPermissionLauncher.launch(
+                Manifest.permission.ANSWER_PHONE_CALLS,
+            )
+            Permission.FIND_NEARBY_DEVICES -> requestPermissionLauncher.launch(
+                Manifest.permission.BLUETOOTH_CONNECT,
+            )
+            Permission.ROOT -> requestRootPermission()
 
             Permission.IGNORE_BATTERY_OPTIMISATION ->
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    requestIgnoreBatteryOptimisations()
-                }
+                requestIgnoreBatteryOptimisations()
 
-            Permission.SHIZUKU ->
-                if (ShizukuUtils.isSupportedForSdkVersion()) {
-                    shizukuAdapter.requestPermission()
-                }
+            Permission.SHIZUKU -> shizukuAdapter.requestPermission()
 
             Permission.ACCESS_FINE_LOCATION ->
                 requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
 
-            Permission.POST_NOTIFICATIONS -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            Permission.POST_NOTIFICATIONS -> if (Build.VERSION.SDK_INT >=
+                Build.VERSION_CODES.TIRAMISU
+            ) {
                 val showRationale = ActivityCompat.shouldShowRequestPermissionRationale(
                     activity,
                     Manifest.permission.POST_NOTIFICATIONS,
@@ -109,14 +117,38 @@ class RequestPermissionDelegate(
                     requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                 }
             }
+
+            Permission.READ_LOGS -> permissionAdapter.grant(Manifest.permission.READ_LOGS)
         }
     }
 
     private fun requestAccessNotificationPolicy() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val intent = Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
+        val intent = Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
 
-            intent.addFlags(
+        intent.addFlags(
+            Intent.FLAG_ACTIVITY_NEW_TASK
+                or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                or Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
+                // Add this flag so user only has to press back once.
+                or Intent.FLAG_ACTIVITY_NO_HISTORY,
+        )
+
+        try {
+            startActivityForResultLauncher.launch(intent)
+        } catch (e: Exception) {
+            Toast.makeText(
+                activity,
+                R.string.error_cant_find_dnd_access_settings,
+                Toast.LENGTH_SHORT,
+            ).show()
+        }
+    }
+
+    private fun requestWriteSettings() {
+        Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS).apply {
+            data = Uri.parse("package:${buildConfigProvider.packageName}")
+
+            addFlags(
                 Intent.FLAG_ACTIVITY_NEW_TASK
                     or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     or Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
@@ -125,88 +157,56 @@ class RequestPermissionDelegate(
             )
 
             try {
-                startActivityForResultLauncher.launch(intent)
+                activity.startActivity(this)
             } catch (e: Exception) {
                 Toast.makeText(
                     activity,
-                    R.string.error_cant_find_dnd_access_settings,
+                    R.string.error_cant_find_write_settings_page,
                     Toast.LENGTH_SHORT,
                 ).show()
             }
         }
     }
 
-    private fun requestWriteSettings() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS).apply {
-                data = Uri.parse("package:${buildConfigProvider.packageName}")
-
-                addFlags(
-                    Intent.FLAG_ACTIVITY_NEW_TASK
-                        or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        or Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
-                        // Add this flag so user only has to press back once.
-                        or Intent.FLAG_ACTIVITY_NO_HISTORY,
-                )
-
-                try {
-                    activity.startActivity(this)
-                } catch (e: Exception) {
-                    Toast.makeText(
-                        activity,
-                        R.string.error_cant_find_write_settings_page,
-                        Toast.LENGTH_SHORT,
-                    ).show()
-                }
-            }
-        }
-    }
-
     private fun requestWriteSecureSettings() {
-        if (permissionAdapter.isGranted(Permission.SHIZUKU) ||
-            permissionAdapter.isGranted(Permission.ROOT)
-        ) {
-            permissionAdapter.grant(Manifest.permission.WRITE_SECURE_SETTINGS)
+        // Try granting with Shizuku, Root, or System Bridge
+        permissionAdapter.grant(Manifest.permission.WRITE_SECURE_SETTINGS).onFailure { error ->
+            activity.materialAlertDialog {
+                titleResource = R.string.dialog_title_write_secure_settings
+                messageResource = R.string.dialog_message_write_secure_settings
 
-            return
-        }
+                positiveButton(R.string.pos_proceed) {
+                    val destination = NavDestination.ProMode
 
-        activity.materialAlertDialog {
-            titleResource = R.string.dialog_title_write_secure_settings
-            messageResource = R.string.dialog_message_write_secure_settings
+                    coroutineScope.launch {
+                        navigationProvider.navigate(
+                            "grant_write_secure_settings_pro_mode",
+                            destination,
+                        )
+                    }
+                }
 
-            positiveButton(R.string.pos_grant_write_secure_settings_guide) {
-                UrlUtils.openUrl(
-                    activity,
-                    activity.str(R.string.url_grant_write_secure_settings_guide),
-                )
+                negativeButton(R.string.neg_cancel) {
+                    it.cancel()
+                }
+
+                show()
             }
-
-            negativeButton(R.string.neg_cancel) {
-                it.cancel()
-            }
-
-            show()
         }
     }
 
-    private fun requestRootPermission(navController: NavController) {
+    private fun requestRootPermission() {
         if (showDialogs) {
             activity.materialAlertDialog {
                 titleResource = R.string.dialog_title_root_prompt
                 messageResource = R.string.dialog_message_root_prompt
                 setIcon(R.drawable.ic_baseline_warning_24)
 
-                okButton {
-                    navController.navigate(NavBaseAppDirections.toSettingsFragment())
-                }
-
+                okButton()
                 negativeButton(R.string.neg_cancel) { it.cancel() }
 
                 show()
             }
-        } else {
-            navController.navigate(NavBaseAppDirections.toSettingsFragment())
         }
     }
 

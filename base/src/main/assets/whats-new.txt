@@ -1,5 +1,31 @@
-⌨️ Action to move cursor to previous/next character, word, line, paragraph, or page.
+✨ Screen-off remapping
+You can now remap ALL buttons when the screen is off (including the power button) for free with PRO mode.
 
-Many other bug fixes and optimisations.
+🎯 New Actions
+• Run shell commands
+• Send SMS messages
+• Force stop current app or clear from recents
+• Mute/unmute microphone
+• Modify any system setting
+• Show a custom notification
+• Toggle hotspot
 
-See all the changes at http://changelog.keymapper.club.
+🆕 New Features
+• Redesigned Settings screen
+• Constraints for foldable hinge open/closed
+• Shortcuts on the trigger screen to guide setup
+• Select notification and alarm sounds for Sound action
+• Constraints for keyboard is showing
+• Switch next to record trigger button to use PRO mode
+
+⚙️ Enhanced Controls
+• Enable or disable all key maps in a group at once
+• Intent API to enable, disable, or toggle individual key maps
+• Floating buttons can now appear on top of keyboard or in notification panel
+
+🔧 Improvements
+• Auto-switching keyboard more reliable and quicker on Android 13+
+• Wi-Fi connected constraints more reliable
+• Various bug fixes and performance optimizations
+
+📖 View the complete changelog at: http://changelog.keymapper.club

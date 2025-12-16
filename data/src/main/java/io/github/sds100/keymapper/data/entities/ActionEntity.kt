@@ -7,8 +7,8 @@ import com.github.salomonbrys.kotson.byNullableString
 import com.github.salomonbrys.kotson.byString
 import com.github.salomonbrys.kotson.jsonDeserializer
 import com.google.gson.annotations.SerializedName
-import kotlinx.parcelize.Parcelize
 import java.util.UUID
+import kotlinx.parcelize.Parcelize
 
 /**
  * @property [data] The information required to perform the action. E.g if the type is [Type.APP],
@@ -61,7 +61,8 @@ data class ActionEntity(
         const val EXTRA_KEY_EVENT_META_STATE = "extra_meta_state"
         const val EXTRA_KEY_EVENT_DEVICE_DESCRIPTOR = "extra_device_descriptor"
         const val EXTRA_KEY_EVENT_DEVICE_NAME = "extra_device_name"
-        const val EXTRA_KEY_EVENT_USE_SHELL = "extra_key_event_use_shell"
+
+//        const val EXTRA_KEY_EVENT_USE_SHELL = "extra_key_event_use_shell"
 
         const val EXTRA_IME_ID = "extra_ime_id"
         const val EXTRA_IME_NAME = "extra_ime_name"
@@ -84,6 +85,12 @@ data class ActionEntity(
         const val EXTRA_HTTP_BODY = "extra_http_body"
         const val EXTRA_HTTP_DESCRIPTION = "extra_http_description"
         const val EXTRA_HTTP_AUTHORIZATION_HEADER = "extra_http_authorization_header"
+        const val EXTRA_SMS_MESSAGE = "extra_sms_message"
+        const val EXTRA_SHELL_COMMAND_USE_ROOT = "extra_shell_command_use_root"
+        const val EXTRA_SHELL_COMMAND_DESCRIPTION = "extra_shell_command_description"
+        const val EXTRA_SHELL_COMMAND_TIMEOUT = "extra_shell_command_timeout"
+        const val EXTRA_NOTIFICATION_TITLE = "extra_notification_title"
+        const val EXTRA_NOTIFICATION_TIMEOUT = "extra_notification_timeout"
 
         // Accessibility node extras
         const val EXTRA_ACCESSIBILITY_PACKAGE_NAME = "extra_accessibility_package_name"
@@ -124,6 +131,8 @@ data class ActionEntity(
         const val ACTION_FLAG_SHOW_VOLUME_UI = 1
         const val ACTION_FLAG_REPEAT = 4
         const val ACTION_FLAG_HOLD_DOWN = 8
+        const val ACTION_FLAG_SHELL_COMMAND_USE_ROOT = 16
+        const val ACTION_FLAG_SHELL_COMMAND_USE_ADB = 32
 
         const val EXTRA_CUSTOM_STOP_REPEAT_BEHAVIOUR = "extra_custom_stop_repeat_behaviour"
         const val EXTRA_CUSTOM_HOLD_DOWN_BEHAVIOUR = "extra_custom_hold_down_behaviour"
@@ -133,10 +142,22 @@ data class ActionEntity(
         const val EXTRA_DELAY_BEFORE_NEXT_ACTION = "extra_delay_before_next_action"
         const val EXTRA_HOLD_DOWN_DURATION = "extra_hold_down_duration"
         const val EXTRA_REPEAT_LIMIT = "extra_repeat_limit"
+        const val EXTRA_SETTING_VALUE = "extra_setting_value"
+        const val EXTRA_SETTING_TYPE = "extra_setting_type"
 
         val DESERIALIZER = jsonDeserializer {
-            val typeString by it.json.byString(NAME_ACTION_TYPE)
-            val type = Type.valueOf(typeString)
+            val typeString by it.json.byNullableString(NAME_ACTION_TYPE)
+            // If it is an unknown type then do not deserialize
+            if (typeString == null) {
+                return@jsonDeserializer null
+            }
+
+            val type: Type = try {
+                Type.valueOf(typeString!!)
+            } catch (e: IllegalArgumentException) {
+                // If it is an unknown type then do not deserialize
+                return@jsonDeserializer null
+            }
 
             val data by it.json.byString(NAME_DATA)
 
@@ -171,8 +192,13 @@ data class ActionEntity(
         PINCH_COORDINATE,
         INTENT,
         PHONE_CALL,
+        SEND_SMS,
+        COMPOSE_SMS,
         SOUND,
         INTERACT_UI_ELEMENT,
+        SHELL_COMMAND,
+        MODIFY_SETTING,
+        CREATE_NOTIFICATION,
     }
 
     constructor(

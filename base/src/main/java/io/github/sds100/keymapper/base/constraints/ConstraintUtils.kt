@@ -1,5 +1,6 @@
 package io.github.sds100.keymapper.base.constraints
 
+import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Battery2Bar
 import androidx.compose.material.icons.outlined.BatteryChargingFull
@@ -10,6 +11,7 @@ import androidx.compose.material.icons.outlined.CallEnd
 import androidx.compose.material.icons.outlined.FlashlightOff
 import androidx.compose.material.icons.outlined.FlashlightOn
 import androidx.compose.material.icons.outlined.Keyboard
+import androidx.compose.material.icons.outlined.KeyboardHide
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.LockOpen
 import androidx.compose.material.icons.outlined.MobileOff
@@ -29,29 +31,128 @@ import io.github.sds100.keymapper.base.utils.ui.compose.ComposeIconInfo
 
 object ConstraintUtils {
 
+    @StringRes
+    fun getCategoryLabel(category: ConstraintCategory): Int = when (category) {
+        ConstraintCategory.APPS -> R.string.constraint_cat_apps
+        ConstraintCategory.MEDIA -> R.string.constraint_cat_media
+        ConstraintCategory.BLUETOOTH -> R.string.constraint_cat_bluetooth
+        ConstraintCategory.DISPLAY -> R.string.constraint_cat_display
+        ConstraintCategory.FLASHLIGHT -> R.string.constraint_cat_flashlight
+        ConstraintCategory.WIFI -> R.string.constraint_cat_wifi
+        ConstraintCategory.KEYBOARD -> R.string.constraint_cat_keyboard
+        ConstraintCategory.LOCK -> R.string.constraint_cat_lock
+        ConstraintCategory.PHONE -> R.string.constraint_cat_phone
+        ConstraintCategory.POWER -> R.string.constraint_cat_power
+        ConstraintCategory.DEVICE -> R.string.constraint_cat_device
+        ConstraintCategory.TIME -> R.string.constraint_cat_time
+    }
+
+    fun getCategory(constraintId: ConstraintId): ConstraintCategory = when (constraintId) {
+        ConstraintId.APP_IN_FOREGROUND,
+        ConstraintId.APP_NOT_IN_FOREGROUND,
+        ConstraintId.APP_PLAYING_MEDIA,
+        ConstraintId.APP_NOT_PLAYING_MEDIA,
+            -> ConstraintCategory.APPS
+
+        ConstraintId.MEDIA_PLAYING,
+        ConstraintId.MEDIA_NOT_PLAYING,
+            -> ConstraintCategory.MEDIA
+
+        ConstraintId.BT_DEVICE_CONNECTED,
+        ConstraintId.BT_DEVICE_DISCONNECTED,
+            -> ConstraintCategory.BLUETOOTH
+
+        ConstraintId.SCREEN_ON,
+        ConstraintId.SCREEN_OFF,
+        ConstraintId.DISPLAY_ORIENTATION_PORTRAIT,
+        ConstraintId.DISPLAY_ORIENTATION_LANDSCAPE,
+        ConstraintId.DISPLAY_ORIENTATION_0,
+        ConstraintId.DISPLAY_ORIENTATION_90,
+        ConstraintId.DISPLAY_ORIENTATION_180,
+        ConstraintId.DISPLAY_ORIENTATION_270,
+        ConstraintId.PHYSICAL_ORIENTATION_PORTRAIT,
+        ConstraintId.PHYSICAL_ORIENTATION_LANDSCAPE,
+        ConstraintId.PHYSICAL_ORIENTATION_PORTRAIT_INVERTED,
+        ConstraintId.PHYSICAL_ORIENTATION_LANDSCAPE_INVERTED,
+            -> ConstraintCategory.DISPLAY
+
+        ConstraintId.FLASHLIGHT_ON,
+        ConstraintId.FLASHLIGHT_OFF,
+            -> ConstraintCategory.FLASHLIGHT
+
+        ConstraintId.WIFI_ON,
+        ConstraintId.WIFI_OFF,
+        ConstraintId.WIFI_CONNECTED,
+        ConstraintId.WIFI_DISCONNECTED,
+            -> ConstraintCategory.WIFI
+
+        ConstraintId.IME_CHOSEN,
+        ConstraintId.IME_NOT_CHOSEN,
+        ConstraintId.KEYBOARD_SHOWING,
+        ConstraintId.KEYBOARD_NOT_SHOWING,
+            -> ConstraintCategory.KEYBOARD
+
+        ConstraintId.DEVICE_IS_LOCKED,
+        ConstraintId.DEVICE_IS_UNLOCKED,
+        ConstraintId.LOCK_SCREEN_SHOWING,
+        ConstraintId.LOCK_SCREEN_NOT_SHOWING,
+            -> ConstraintCategory.LOCK
+
+        ConstraintId.IN_PHONE_CALL,
+        ConstraintId.NOT_IN_PHONE_CALL,
+        ConstraintId.PHONE_RINGING,
+            -> ConstraintCategory.PHONE
+
+        ConstraintId.CHARGING,
+        ConstraintId.DISCHARGING,
+            -> ConstraintCategory.POWER
+
+        ConstraintId.HINGE_CLOSED,
+        ConstraintId.HINGE_OPEN,
+            -> ConstraintCategory.DEVICE
+
+        ConstraintId.TIME -> ConstraintCategory.TIME
+    }
+
     fun getIcon(constraintId: ConstraintId): ComposeIconInfo = when (constraintId) {
         ConstraintId.APP_IN_FOREGROUND,
         ConstraintId.APP_NOT_IN_FOREGROUND,
         ConstraintId.APP_PLAYING_MEDIA,
         ConstraintId.APP_NOT_PLAYING_MEDIA,
-        -> ComposeIconInfo.Vector(Icons.Rounded.Android)
+            -> ComposeIconInfo.Vector(Icons.Rounded.Android)
 
         ConstraintId.MEDIA_PLAYING -> ComposeIconInfo.Vector(Icons.Outlined.PlayArrow)
         ConstraintId.MEDIA_NOT_PLAYING -> ComposeIconInfo.Vector(Icons.Outlined.StopCircle)
 
-        ConstraintId.BT_DEVICE_CONNECTED -> ComposeIconInfo.Vector(Icons.Outlined.BluetoothConnected)
-        ConstraintId.BT_DEVICE_DISCONNECTED -> ComposeIconInfo.Vector(Icons.Outlined.BluetoothDisabled)
+        ConstraintId.BT_DEVICE_CONNECTED -> ComposeIconInfo.Vector(
+            Icons.Outlined.BluetoothConnected,
+        )
+        ConstraintId.BT_DEVICE_DISCONNECTED -> ComposeIconInfo.Vector(
+            Icons.Outlined.BluetoothDisabled,
+        )
 
-        ConstraintId.ORIENTATION_0,
-        ConstraintId.ORIENTATION_180,
-        -> ComposeIconInfo.Vector(Icons.Outlined.StayCurrentPortrait)
+        ConstraintId.DISPLAY_ORIENTATION_0,
+        ConstraintId.DISPLAY_ORIENTATION_180,
+            -> ComposeIconInfo.Vector(Icons.Outlined.StayCurrentPortrait)
 
-        ConstraintId.ORIENTATION_90,
-        ConstraintId.ORIENTATION_270,
-        -> ComposeIconInfo.Vector(Icons.Outlined.StayCurrentLandscape)
+        ConstraintId.DISPLAY_ORIENTATION_90,
+        ConstraintId.DISPLAY_ORIENTATION_270,
+            -> ComposeIconInfo.Vector(Icons.Outlined.StayCurrentLandscape)
 
-        ConstraintId.ORIENTATION_LANDSCAPE -> ComposeIconInfo.Vector(Icons.Outlined.StayCurrentLandscape)
-        ConstraintId.ORIENTATION_PORTRAIT -> ComposeIconInfo.Vector(Icons.Outlined.StayCurrentPortrait)
+        ConstraintId.DISPLAY_ORIENTATION_LANDSCAPE -> ComposeIconInfo.Vector(
+            Icons.Outlined.StayCurrentLandscape,
+        )
+        ConstraintId.DISPLAY_ORIENTATION_PORTRAIT -> ComposeIconInfo.Vector(
+            Icons.Outlined.StayCurrentPortrait,
+        )
+
+        ConstraintId.PHYSICAL_ORIENTATION_PORTRAIT,
+        ConstraintId.PHYSICAL_ORIENTATION_PORTRAIT_INVERTED,
+            -> ComposeIconInfo.Vector(Icons.Outlined.StayCurrentPortrait)
+
+        ConstraintId.PHYSICAL_ORIENTATION_LANDSCAPE,
+        ConstraintId.PHYSICAL_ORIENTATION_LANDSCAPE_INVERTED,
+            -> ComposeIconInfo.Vector(Icons.Outlined.StayCurrentLandscape)
 
         ConstraintId.SCREEN_OFF -> ComposeIconInfo.Vector(Icons.Outlined.MobileOff)
         ConstraintId.SCREEN_ON -> ComposeIconInfo.Vector(Icons.Outlined.StayCurrentPortrait)
@@ -60,13 +161,18 @@ object ConstraintUtils {
         ConstraintId.FLASHLIGHT_ON -> ComposeIconInfo.Vector(Icons.Outlined.FlashlightOn)
 
         ConstraintId.WIFI_CONNECTED -> ComposeIconInfo.Vector(Icons.Outlined.Wifi)
-        ConstraintId.WIFI_DISCONNECTED -> ComposeIconInfo.Vector(Icons.Outlined.SignalWifiStatusbarNull)
+        ConstraintId.WIFI_DISCONNECTED -> ComposeIconInfo.Vector(
+            Icons.Outlined.SignalWifiStatusbarNull,
+        )
         ConstraintId.WIFI_OFF -> ComposeIconInfo.Vector(Icons.Outlined.WifiOff)
         ConstraintId.WIFI_ON -> ComposeIconInfo.Vector(Icons.Outlined.Wifi)
 
         ConstraintId.IME_CHOSEN,
         ConstraintId.IME_NOT_CHOSEN,
-        -> ComposeIconInfo.Vector(Icons.Outlined.Keyboard)
+            -> ComposeIconInfo.Vector(Icons.Outlined.Keyboard)
+
+        ConstraintId.KEYBOARD_SHOWING -> ComposeIconInfo.Vector(Icons.Outlined.Keyboard)
+        ConstraintId.KEYBOARD_NOT_SHOWING -> ComposeIconInfo.Vector(Icons.Outlined.KeyboardHide)
 
         ConstraintId.DEVICE_IS_LOCKED -> ComposeIconInfo.Vector(Icons.Outlined.Lock)
         ConstraintId.DEVICE_IS_UNLOCKED -> ComposeIconInfo.Vector(Icons.Outlined.LockOpen)
@@ -77,7 +183,13 @@ object ConstraintUtils {
 
         ConstraintId.CHARGING -> ComposeIconInfo.Vector(Icons.Outlined.BatteryChargingFull)
         ConstraintId.DISCHARGING -> ComposeIconInfo.Vector(Icons.Outlined.Battery2Bar)
-        ConstraintId.LOCK_SCREEN_SHOWING -> ComposeIconInfo.Vector(Icons.Outlined.ScreenLockPortrait)
+
+        ConstraintId.HINGE_CLOSED -> ComposeIconInfo.Vector(Icons.Outlined.StayCurrentPortrait)
+        ConstraintId.HINGE_OPEN -> ComposeIconInfo.Vector(Icons.Outlined.StayCurrentLandscape)
+
+        ConstraintId.LOCK_SCREEN_SHOWING -> ComposeIconInfo.Vector(
+            Icons.Outlined.ScreenLockPortrait,
+        )
         ConstraintId.LOCK_SCREEN_NOT_SHOWING -> ComposeIconInfo.Vector(Icons.Outlined.LockOpen)
         ConstraintId.TIME -> ComposeIconInfo.Vector(Icons.Outlined.Timer)
     }
@@ -90,15 +202,25 @@ object ConstraintUtils {
         ConstraintId.MEDIA_NOT_PLAYING -> R.string.constraint_choose_media_not_playing
         ConstraintId.MEDIA_PLAYING -> R.string.constraint_choose_media_playing
         ConstraintId.BT_DEVICE_CONNECTED -> R.string.constraint_choose_bluetooth_device_connected
-        ConstraintId.BT_DEVICE_DISCONNECTED -> R.string.constraint_choose_bluetooth_device_disconnected
+        ConstraintId.BT_DEVICE_DISCONNECTED ->
+            R.string.constraint_choose_bluetooth_device_disconnected
         ConstraintId.SCREEN_ON -> R.string.constraint_choose_screen_on_description
         ConstraintId.SCREEN_OFF -> R.string.constraint_choose_screen_off_description
-        ConstraintId.ORIENTATION_PORTRAIT -> R.string.constraint_choose_orientation_portrait
-        ConstraintId.ORIENTATION_LANDSCAPE -> R.string.constraint_choose_orientation_landscape
-        ConstraintId.ORIENTATION_0 -> R.string.constraint_choose_orientation_0
-        ConstraintId.ORIENTATION_90 -> R.string.constraint_choose_orientation_90
-        ConstraintId.ORIENTATION_180 -> R.string.constraint_choose_orientation_180
-        ConstraintId.ORIENTATION_270 -> R.string.constraint_choose_orientation_270
+        ConstraintId.DISPLAY_ORIENTATION_PORTRAIT -> R.string.constraint_choose_orientation_portrait
+        ConstraintId.DISPLAY_ORIENTATION_LANDSCAPE ->
+            R.string.constraint_choose_orientation_landscape
+        ConstraintId.DISPLAY_ORIENTATION_0 -> R.string.constraint_choose_orientation_0
+        ConstraintId.DISPLAY_ORIENTATION_90 -> R.string.constraint_choose_orientation_90
+        ConstraintId.DISPLAY_ORIENTATION_180 -> R.string.constraint_choose_orientation_180
+        ConstraintId.DISPLAY_ORIENTATION_270 -> R.string.constraint_choose_orientation_270
+        ConstraintId.PHYSICAL_ORIENTATION_PORTRAIT ->
+            R.string.constraint_choose_physical_orientation_portrait
+        ConstraintId.PHYSICAL_ORIENTATION_LANDSCAPE ->
+            R.string.constraint_choose_physical_orientation_landscape
+        ConstraintId.PHYSICAL_ORIENTATION_PORTRAIT_INVERTED ->
+            R.string.constraint_choose_physical_orientation_portrait_inverted
+        ConstraintId.PHYSICAL_ORIENTATION_LANDSCAPE_INVERTED ->
+            R.string.constraint_choose_physical_orientation_landscape_inverted
         ConstraintId.FLASHLIGHT_ON -> R.string.constraint_flashlight_on
         ConstraintId.FLASHLIGHT_OFF -> R.string.constraint_flashlight_off
         ConstraintId.WIFI_ON -> R.string.constraint_wifi_on
@@ -107,6 +229,8 @@ object ConstraintUtils {
         ConstraintId.WIFI_DISCONNECTED -> R.string.constraint_wifi_disconnected
         ConstraintId.IME_CHOSEN -> R.string.constraint_ime_chosen
         ConstraintId.IME_NOT_CHOSEN -> R.string.constraint_ime_not_chosen
+        ConstraintId.KEYBOARD_SHOWING -> R.string.constraint_keyboard_showing
+        ConstraintId.KEYBOARD_NOT_SHOWING -> R.string.constraint_keyboard_not_showing
         ConstraintId.DEVICE_IS_LOCKED -> R.string.constraint_device_is_locked
         ConstraintId.DEVICE_IS_UNLOCKED -> R.string.constraint_device_is_unlocked
         ConstraintId.IN_PHONE_CALL -> R.string.constraint_in_phone_call
@@ -114,6 +238,8 @@ object ConstraintUtils {
         ConstraintId.PHONE_RINGING -> R.string.constraint_phone_ringing
         ConstraintId.CHARGING -> R.string.constraint_charging
         ConstraintId.DISCHARGING -> R.string.constraint_discharging
+        ConstraintId.HINGE_CLOSED -> R.string.constraint_hinge_closed
+        ConstraintId.HINGE_OPEN -> R.string.constraint_hinge_open
         ConstraintId.LOCK_SCREEN_SHOWING -> R.string.constraint_lock_screen_showing
         ConstraintId.LOCK_SCREEN_NOT_SHOWING -> R.string.constraint_lock_screen_not_showing
         ConstraintId.TIME -> R.string.constraint_time

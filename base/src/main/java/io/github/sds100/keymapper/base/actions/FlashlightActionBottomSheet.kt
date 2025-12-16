@@ -31,7 +31,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SheetState
-import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -41,7 +40,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -53,8 +51,8 @@ import io.github.sds100.keymapper.base.utils.ui.compose.OptionsHeaderRow
 import io.github.sds100.keymapper.base.utils.ui.compose.RadioButtonText
 import io.github.sds100.keymapper.system.camera.CameraFlashInfo
 import io.github.sds100.keymapper.system.camera.CameraLens
-import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -193,7 +191,9 @@ private fun EnableFlashlightActionBottomSheet(
                     IconButton(onClick = { onSelectStrength(sliderDefault) }) {
                         Icon(
                             Icons.Rounded.RestartAlt,
-                            contentDescription = stringResource(R.string.slider_reset_content_description),
+                            contentDescription = stringResource(
+                                R.string.slider_reset_content_description,
+                            ),
                         )
                     }
                 }
@@ -459,8 +459,8 @@ private fun PreviewBothLenses() {
     KeyMapperTheme {
         val sheetState = SheetState(
             skipPartiallyExpanded = true,
-            density = LocalDensity.current,
-            initialValue = SheetValue.Expanded,
+            positionalThreshold = { 0f },
+            velocityThreshold = { 0f },
         )
 
         EnableFlashlightActionBottomSheet(
@@ -495,8 +495,8 @@ private fun PreviewOnlyBackLens() {
     KeyMapperTheme {
         val sheetState = SheetState(
             skipPartiallyExpanded = true,
-            density = LocalDensity.current,
-            initialValue = SheetValue.Expanded,
+            positionalThreshold = { 0f },
+            velocityThreshold = { 0f },
         )
 
         EnableFlashlightActionBottomSheet(
@@ -526,8 +526,8 @@ private fun PreviewOnlyBackLensChangeStrength() {
     KeyMapperTheme {
         val sheetState = SheetState(
             skipPartiallyExpanded = true,
-            density = LocalDensity.current,
-            initialValue = SheetValue.Expanded,
+            positionalThreshold = { 0f },
+            velocityThreshold = { 0f },
         )
 
         ChangeFlashlightStrengthActionBottomSheet(
@@ -555,8 +555,8 @@ private fun PreviewUnsupportedAndroidVersion() {
     KeyMapperTheme {
         val sheetState = SheetState(
             skipPartiallyExpanded = true,
-            density = LocalDensity.current,
-            initialValue = SheetValue.Expanded,
+            positionalThreshold = { 0f },
+            velocityThreshold = { 0f },
         )
 
         EnableFlashlightActionBottomSheet(

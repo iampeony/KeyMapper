@@ -2,7 +2,6 @@ package io.github.sds100.keymapper.system.shizuku
 
 import android.os.Build
 
-
 object ShizukuUtils {
     const val SHIZUKU_PACKAGE = "moe.shizuku.privileged.api"
 
@@ -11,6 +10,4 @@ object ShizukuUtils {
      * Android 11 because a PC/mac isn't needed after every reboot to make it work.
      */
     fun isRecommendedForSdkVersion(): Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
-
-    fun isSupportedForSdkVersion(): Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
 }

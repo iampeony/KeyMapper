@@ -6,8 +6,8 @@ import com.github.salomonbrys.kotson.byNullableString
 import com.github.salomonbrys.kotson.byString
 import com.github.salomonbrys.kotson.jsonDeserializer
 import com.google.gson.annotations.SerializedName
-import kotlinx.parcelize.Parcelize
 import java.util.UUID
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class ConstraintEntity(
@@ -58,6 +58,13 @@ data class ConstraintEntity(
         const val ORIENTATION_PORTRAIT = "constraint_orientation_portrait"
         const val ORIENTATION_LANDSCAPE = "constraint_orientation_landscape"
 
+        const val PHYSICAL_ORIENTATION_PORTRAIT = "constraint_physical_orientation_portrait"
+        const val PHYSICAL_ORIENTATION_LANDSCAPE = "constraint_physical_orientation_landscape"
+        const val PHYSICAL_ORIENTATION_PORTRAIT_INVERTED =
+            "constraint_physical_orientation_portrait_inverted"
+        const val PHYSICAL_ORIENTATION_LANDSCAPE_INVERTED =
+            "constraint_physical_orientation_landscape_inverted"
+
         const val FLASHLIGHT_ON = "flashlight_on"
         const val FLASHLIGHT_OFF = "flashlight_off"
 
@@ -68,6 +75,9 @@ data class ConstraintEntity(
 
         const val IME_CHOSEN = "ime_chosen"
         const val IME_NOT_CHOSEN = "ime_not_chosen"
+
+        const val KEYBOARD_SHOWING = "keyboard_showing"
+        const val KEYBOARD_NOT_SHOWING = "keyboard_not_showing"
 
         const val DEVICE_IS_LOCKED = "is_locked"
         const val DEVICE_IS_UNLOCKED = "is_unlocked"
@@ -80,6 +90,9 @@ data class ConstraintEntity(
 
         const val CHARGING = "charging"
         const val DISCHARGING = "discharging"
+
+        const val HINGE_CLOSED = "hinge_closed"
+        const val HINGE_OPEN = "hinge_open"
 
         const val TIME = "time"
 

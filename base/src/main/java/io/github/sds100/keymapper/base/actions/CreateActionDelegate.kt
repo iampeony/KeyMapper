@@ -4,6 +4,7 @@ import android.text.InputType
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import io.github.sds100.keymapper.base.R
 import io.github.sds100.keymapper.base.actions.pinchscreen.PinchPickCoordinateResult
 import io.github.sds100.keymapper.base.actions.swipescreen.SwipePickCoordinateResult
@@ -11,7 +12,6 @@ import io.github.sds100.keymapper.base.actions.tapscreen.PickCoordinateResult
 import io.github.sds100.keymapper.base.system.intents.ConfigIntentResult
 import io.github.sds100.keymapper.base.utils.DndModeStrings
 import io.github.sds100.keymapper.base.utils.RingerModeStrings
-import io.github.sds100.keymapper.base.utils.VolumeStreamStrings
 import io.github.sds100.keymapper.base.utils.navigation.NavDestination
 import io.github.sds100.keymapper.base.utils.navigation.NavigationProvider
 import io.github.sds100.keymapper.base.utils.navigation.navigate
@@ -21,19 +21,27 @@ import io.github.sds100.keymapper.base.utils.ui.MultiChoiceItem
 import io.github.sds100.keymapper.base.utils.ui.ResourceProvider
 import io.github.sds100.keymapper.base.utils.ui.showDialog
 import io.github.sds100.keymapper.common.utils.Orientation
+import io.github.sds100.keymapper.common.utils.State
+import io.github.sds100.keymapper.system.SystemError
 import io.github.sds100.keymapper.system.camera.CameraLens
 import io.github.sds100.keymapper.system.network.HttpMethod
+import io.github.sds100.keymapper.system.permissions.Permission
+import io.github.sds100.keymapper.system.settings.SettingType
 import io.github.sds100.keymapper.system.volume.DndMode
 import io.github.sds100.keymapper.system.volume.RingerMode
 import io.github.sds100.keymapper.system.volume.VolumeStream
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class CreateActionDelegate(
     private val coroutineScope: CoroutineScope,
     private val useCase: CreateActionUseCase,
@@ -51,6 +59,12 @@ class CreateActionDelegate(
     )
 
     var httpRequestBottomSheetState: ActionData.HttpRequest? by mutableStateOf(null)
+    var smsActionBottomSheetState: SmsActionBottomSheetState? by mutableStateOf(null)
+    var volumeActionState: VolumeActionBottomSheetState? by mutableStateOf(null)
+    var modifySettingActionBottomSheetState: ModifySettingActionBottomSheetState?
+        by mutableStateOf(null)
+    var createNotificationActionBottomSheetState: CreateNotificationActionBottomSheetState?
+        by mutableStateOf(null)
 
     init {
         coroutineScope.launch {
@@ -59,6 +73,36 @@ class CreateActionDelegate(
                     enableFlashlightActionState = state.copy(isFlashEnabled = enabled)
                 }
             }
+        }
+
+        coroutineScope.launch {
+            snapshotFlow { modifySettingActionBottomSheetState?.settingType }
+                .filterNotNull()
+                .flatMapLatest { settingType ->
+                    val permission = useCase.getRequiredPermissionForSettingType(settingType)
+                    useCase.isPermissionGrantedFlow(permission)
+                }
+                .collectLatest { isGranted ->
+                    modifySettingActionBottomSheetState =
+                        modifySettingActionBottomSheetState?.copy(
+                            isPermissionGranted = isGranted,
+                            testResult = null,
+                        )
+                }
+        }
+
+        coroutineScope.launch {
+            snapshotFlow { createNotificationActionBottomSheetState }
+                .filterNotNull()
+                .flatMapLatest {
+                    useCase.isPermissionGrantedFlow(Permission.POST_NOTIFICATIONS)
+                }
+                .collectLatest { isGranted ->
+                    createNotificationActionBottomSheetState =
+                        createNotificationActionBottomSheetState?.copy(
+                            isPermissionGranted = isGranted,
+                        )
+                }
         }
     }
 
@@ -138,6 +182,183 @@ class CreateActionDelegate(
         }
     }
 
+    fun onDoneSmsClick() {
+        val state = smsActionBottomSheetState ?: return
+
+        val action = when (state) {
+            is SmsActionBottomSheetState.ComposeSms -> ActionData.ComposeSms(
+                state.number,
+                state.message,
+            )
+
+            is SmsActionBottomSheetState.SendSms -> ActionData.SendSms(
+                state.number,
+                state.message,
+            )
+        }
+
+        smsActionBottomSheetState = null
+        actionResult.update { action }
+    }
+
+    fun onDoneConfigVolumeClick() {
+        volumeActionState?.also { state ->
+            val action = when (state.actionId) {
+                ActionId.VOLUME_UP -> ActionData.Volume.Up(
+                    showVolumeUi = state.showVolumeUi,
+                    volumeStream = state.volumeStream,
+                )
+                ActionId.VOLUME_DOWN -> ActionData.Volume.Down(
+                    showVolumeUi = state.showVolumeUi,
+                    volumeStream = state.volumeStream,
+                )
+                else -> return
+            }
+
+            volumeActionState = null
+            actionResult.update { action }
+        }
+    }
+
+    fun onTestSmsClick() {
+        coroutineScope.launch {
+            (smsActionBottomSheetState as? SmsActionBottomSheetState.SendSms)?.also { state ->
+                smsActionBottomSheetState = state.copy(testResult = State.Loading)
+
+                val result = useCase.testSms(state.number, state.message)
+
+                if (result is SystemError.PermissionDenied) {
+                    useCase.requestPermission(result.permission)
+                    smsActionBottomSheetState = state.copy(testResult = null)
+                } else {
+                    smsActionBottomSheetState = state.copy(testResult = State.Data(result))
+                }
+            }
+        }
+    }
+
+    fun onDoneModifySettingClick() {
+        val state = modifySettingActionBottomSheetState ?: return
+        val result = ActionData.ModifySetting(
+            settingType = state.settingType,
+            settingKey = state.settingKey,
+            value = state.value,
+        )
+
+        modifySettingActionBottomSheetState = null
+        actionResult.update { result }
+    }
+
+    fun onSelectSettingType(settingType: SettingType) {
+        modifySettingActionBottomSheetState =
+            modifySettingActionBottomSheetState?.copy(
+                settingType = settingType,
+                testResult = null,
+            )
+    }
+
+    fun onSettingKeyChange(key: String) {
+        modifySettingActionBottomSheetState =
+            modifySettingActionBottomSheetState?.copy(
+                settingKey = key,
+                testResult = null,
+            )
+    }
+
+    fun onChooseExistingSettingClick() {
+        val type = modifySettingActionBottomSheetState?.settingType ?: return
+        val destination = NavDestination.ChooseSetting(settingType = type)
+
+        coroutineScope.launch {
+            val setting = navigate("choose_setting", destination) ?: return@launch
+
+            modifySettingActionBottomSheetState = modifySettingActionBottomSheetState?.copy(
+                settingType = setting.settingType,
+                settingKey = setting.key,
+                value = setting.currentValue ?: "",
+                testResult = null,
+            )
+        }
+    }
+
+    fun onSettingValueChange(value: String) {
+        modifySettingActionBottomSheetState =
+            modifySettingActionBottomSheetState?.copy(value = value)
+    }
+
+    fun onTestModifySettingClick() {
+        val state = modifySettingActionBottomSheetState ?: return
+
+        coroutineScope.launch {
+            val result = useCase.setSettingValue(state.settingType, state.settingKey, state.value)
+            modifySettingActionBottomSheetState =
+                modifySettingActionBottomSheetState?.copy(testResult = result)
+        }
+    }
+
+    fun onRequestModifySettingPermissionClick() {
+        val state = modifySettingActionBottomSheetState ?: return
+        val permission = useCase.getRequiredPermissionForSettingType(state.settingType)
+        useCase.requestPermission(permission)
+    }
+
+    fun onCreateNotificationTitleChange(title: String) {
+        createNotificationActionBottomSheetState =
+            createNotificationActionBottomSheetState?.copy(title = title)
+    }
+
+    fun onCreateNotificationTextChange(text: String) {
+        createNotificationActionBottomSheetState =
+            createNotificationActionBottomSheetState?.copy(text = text)
+    }
+
+    fun onCreateNotificationTimeoutEnabledChange(enabled: Boolean) {
+        createNotificationActionBottomSheetState =
+            createNotificationActionBottomSheetState?.copy(timeoutEnabled = enabled)
+    }
+
+    fun onCreateNotificationTimeoutChange(timeoutSeconds: Int) {
+        createNotificationActionBottomSheetState =
+            createNotificationActionBottomSheetState?.copy(timeoutSeconds = timeoutSeconds)
+    }
+
+    fun onTestCreateNotificationClick() {
+        val state = createNotificationActionBottomSheetState ?: return
+
+        coroutineScope.launch {
+            val timeoutMs = if (state.timeoutEnabled) {
+                state.timeoutSeconds * 1000L
+            } else {
+                null
+            }
+
+            useCase.testCreateNotification(state.title, state.text, timeoutMs)
+        }
+    }
+
+    fun onDoneCreateNotificationClick() {
+        val state = createNotificationActionBottomSheetState ?: return
+
+        val timeoutMs = if (state.timeoutEnabled) {
+            state.timeoutSeconds * 1000L
+        } else {
+            null
+        }
+
+        val action = ActionData.CreateNotification(
+            title = state.title,
+            text = state.text,
+            timeoutMs = timeoutMs,
+        )
+
+        createNotificationActionBottomSheetState = null
+        actionResult.update { action }
+    }
+
+    fun onRequestNotificationPermissionClick() {
+        useCase.requestPermission(Permission.POST_NOTIFICATIONS)
+    }
+
     suspend fun editAction(oldData: ActionData) {
         if (!oldData.isEditable()) {
             throw IllegalArgumentException("This action ${oldData.javaClass.name} can't be edited!")
@@ -179,7 +400,7 @@ class CreateActionDelegate(
             ActionId.STOP_MEDIA_PACKAGE,
             ActionId.STEP_FORWARD_PACKAGE,
             ActionId.STEP_BACKWARD_PACKAGE,
-            -> {
+                -> {
                 val packageName =
                     navigate(
                         "choose_app_for_media_action",
@@ -224,17 +445,33 @@ class CreateActionDelegate(
                 return action
             }
 
-            ActionId.VOLUME_UP,
-            ActionId.VOLUME_DOWN,
+            ActionId.VOLUME_UP -> {
+                val oldVolumeUpData = oldData as? ActionData.Volume.Up
+                volumeActionState = VolumeActionBottomSheetState(
+                    actionId = ActionId.VOLUME_UP,
+                    volumeStream = oldVolumeUpData?.volumeStream,
+                    showVolumeUi = oldVolumeUpData?.showVolumeUi ?: false,
+                )
+                return null
+            }
+
+            ActionId.VOLUME_DOWN -> {
+                val oldVolumeDownData = oldData as? ActionData.Volume.Down
+                volumeActionState = VolumeActionBottomSheetState(
+                    actionId = ActionId.VOLUME_DOWN,
+                    volumeStream = oldVolumeDownData?.volumeStream,
+                    showVolumeUi = oldVolumeDownData?.showVolumeUi ?: false,
+                )
+                return null
+            }
+
             ActionId.VOLUME_MUTE,
             ActionId.VOLUME_UNMUTE,
             ActionId.VOLUME_TOGGLE_MUTE,
-            -> {
+                -> {
                 val showVolumeUiId = 0
                 val isVolumeUiChecked =
                     when (oldData) {
-                        is ActionData.Volume.Up -> oldData.showVolumeUi
-                        is ActionData.Volume.Down -> oldData.showVolumeUi
                         is ActionData.Volume.Mute -> oldData.showVolumeUi
                         is ActionData.Volume.UnMute -> oldData.showVolumeUi
                         is ActionData.Volume.ToggleMute -> oldData.showVolumeUi
@@ -256,8 +493,6 @@ class CreateActionDelegate(
                 val showVolumeUi = chosenFlags.contains(showVolumeUiId)
 
                 val action = when (actionId) {
-                    ActionId.VOLUME_UP -> ActionData.Volume.Up(showVolumeUi)
-                    ActionId.VOLUME_DOWN -> ActionData.Volume.Down(showVolumeUi)
                     ActionId.VOLUME_MUTE -> ActionData.Volume.Mute(showVolumeUi)
                     ActionId.VOLUME_UNMUTE -> ActionData.Volume.UnMute(showVolumeUi)
                     ActionId.VOLUME_TOGGLE_MUTE -> ActionData.Volume.ToggleMute(
@@ -270,48 +505,49 @@ class CreateActionDelegate(
                 return action
             }
 
+            ActionId.MUTE_MICROPHONE -> {
+                return ActionData.Microphone.Mute
+            }
+
+            ActionId.UNMUTE_MICROPHONE -> {
+                return ActionData.Microphone.Unmute
+            }
+
+            ActionId.TOGGLE_MUTE_MICROPHONE -> {
+                return ActionData.Microphone.Toggle
+            }
+
             ActionId.VOLUME_INCREASE_STREAM,
             ActionId.VOLUME_DECREASE_STREAM,
-            -> {
-                val showVolumeUiId = 0
-                val isVolumeUiChecked = if (oldData is ActionData.Volume.Stream) {
-                    oldData.showVolumeUi
-                } else {
-                    false
+                -> {
+                // These deprecated actions are now converted to Volume.Up/Down with stream parameter
+                // Determine which action ID to use based on the old action
+                val newActionId = when (actionId) {
+                    ActionId.VOLUME_INCREASE_STREAM -> ActionId.VOLUME_UP
+                    ActionId.VOLUME_DECREASE_STREAM -> ActionId.VOLUME_DOWN
+                    else -> return null
                 }
 
-                val dialogItems = listOf(
-                    MultiChoiceItem(
-                        showVolumeUiId,
-                        getString(R.string.flag_show_volume_dialog),
-                        isVolumeUiChecked,
-                    ),
+                // Get the old stream if this is being edited
+                val oldStream = when (oldData) {
+                    is ActionData.Volume.Up -> oldData.volumeStream
+                    is ActionData.Volume.Down -> oldData.volumeStream
+                    else -> null
+                }
+
+                val oldShowVolumeUi = when (oldData) {
+                    is ActionData.Volume.Up -> oldData.showVolumeUi
+                    is ActionData.Volume.Down -> oldData.showVolumeUi
+                    else -> false
+                }
+
+                volumeActionState = VolumeActionBottomSheetState(
+                    actionId = newActionId,
+                    // Default to MUSIC for old stream actions
+                    volumeStream = oldStream ?: VolumeStream.MUSIC,
+                    showVolumeUi = oldShowVolumeUi,
                 )
-
-                val showVolumeUiDialog = DialogModel.MultiChoice(items = dialogItems)
-
-                val chosenFlags =
-                    showDialog("show_volume_ui", showVolumeUiDialog) ?: return null
-
-                val showVolumeUi = chosenFlags.contains(showVolumeUiId)
-
-                val items = VolumeStream.entries
-                    .map { it to getString(VolumeStreamStrings.getLabel(it)) }
-
-                val stream = showDialog("pick_volume_stream", DialogModel.SingleChoice(items))
-                    ?: return null
-
-                val action = when (actionId) {
-                    ActionId.VOLUME_INCREASE_STREAM ->
-                        ActionData.Volume.Stream.Increase(showVolumeUi = showVolumeUi, stream)
-
-                    ActionId.VOLUME_DECREASE_STREAM ->
-                        ActionData.Volume.Stream.Decrease(showVolumeUi = showVolumeUi, stream)
-
-                    else -> throw Exception("don't know how to create action for $actionId")
-                }
-
-                return action
+                return null
             }
 
             ActionId.CHANGE_RINGER_MODE -> {
@@ -328,7 +564,7 @@ class CreateActionDelegate(
             // don't need to show options for disabling do not disturb
             ActionId.TOGGLE_DND_MODE,
             ActionId.ENABLE_DND_MODE,
-            -> {
+                -> {
                 val items = DndMode.entries
                     .map { it to getString(DndModeStrings.getLabel(it)) }
 
@@ -446,7 +682,7 @@ class CreateActionDelegate(
             }
 
             ActionId.DISABLE_FLASHLIGHT,
-            -> {
+                -> {
                 val items = useCase.getFlashlightLenses().map { lens ->
                     when (lens) {
                         CameraLens.FRONT -> lens to getString(R.string.lens_front)
@@ -691,6 +927,35 @@ class CreateActionDelegate(
                 return ActionData.PhoneCall(text)
             }
 
+            ActionId.SEND_SMS, ActionId.COMPOSE_SMS -> {
+                val number = when (oldData) {
+                    is ActionData.SendSms -> oldData.number
+                    is ActionData.ComposeSms -> oldData.number
+                    else -> ""
+                }
+
+                val message = when (oldData) {
+                    is ActionData.SendSms -> oldData.message
+                    is ActionData.ComposeSms -> oldData.message
+                    else -> ""
+                }
+
+                smsActionBottomSheetState = if (actionId == ActionId.SEND_SMS) {
+                    SmsActionBottomSheetState.SendSms(
+                        number = number,
+                        message = message,
+                        testResult = null,
+                    )
+                } else {
+                    SmsActionBottomSheetState.ComposeSms(
+                        number = number,
+                        message = message,
+                    )
+                }
+
+                return null
+            }
+
             ActionId.SOUND -> {
                 return navigate(
                     "choose_sound_file",
@@ -709,6 +974,10 @@ class CreateActionDelegate(
             ActionId.TOGGLE_MOBILE_DATA -> return ActionData.MobileData.Toggle
             ActionId.ENABLE_MOBILE_DATA -> return ActionData.MobileData.Enable
             ActionId.DISABLE_MOBILE_DATA -> return ActionData.MobileData.Disable
+
+            ActionId.TOGGLE_HOTSPOT -> return ActionData.Hotspot.Toggle
+            ActionId.ENABLE_HOTSPOT -> return ActionData.Hotspot.Enable
+            ActionId.DISABLE_HOTSPOT -> return ActionData.Hotspot.Disable
 
             ActionId.TOGGLE_AUTO_BRIGHTNESS -> return ActionData.Brightness.ToggleAuto
             ActionId.DISABLE_AUTO_BRIGHTNESS -> return ActionData.Brightness.DisableAuto
@@ -782,6 +1051,18 @@ class CreateActionDelegate(
             ActionId.DISABLE_DND_MODE -> return ActionData.DoNotDisturb.Disable
             ActionId.DISMISS_MOST_RECENT_NOTIFICATION -> return ActionData.DismissLastNotification
             ActionId.DISMISS_ALL_NOTIFICATIONS -> return ActionData.DismissAllNotifications
+            ActionId.CREATE_NOTIFICATION -> {
+                val oldAction = oldData as? ActionData.CreateNotification
+
+                createNotificationActionBottomSheetState = CreateNotificationActionBottomSheetState(
+                    title = oldAction?.title ?: "",
+                    text = oldAction?.text ?: "",
+                    timeoutEnabled = oldAction?.timeoutMs != null,
+                    timeoutSeconds = ((oldAction?.timeoutMs ?: 30000) / 1000).toInt(),
+                )
+
+                return null
+            }
             ActionId.ANSWER_PHONE_CALL -> return ActionData.AnswerCall
             ActionId.END_PHONE_CALL -> return ActionData.EndCall
             ActionId.DEVICE_CONTROLS -> return ActionData.DeviceControls
@@ -800,6 +1081,19 @@ class CreateActionDelegate(
                 return null
             }
 
+            ActionId.SHELL_COMMAND -> {
+                val oldAction = oldData as? ActionData.ShellCommand
+
+                return navigate(
+                    "config_shell_command_action",
+                    NavDestination.ConfigShellCommand(
+                        oldAction?.let {
+                            Json.encodeToString(oldAction)
+                        },
+                    ),
+                )
+            }
+
             ActionId.INTERACT_UI_ELEMENT -> {
                 val oldAction = oldData as? ActionData.InteractUiElement
 
@@ -810,6 +1104,20 @@ class CreateActionDelegate(
             }
 
             ActionId.MOVE_CURSOR -> return createMoverCursorAction()
+            ActionId.FORCE_STOP_APP -> return ActionData.ForceStopApp
+            ActionId.CLEAR_RECENT_APP -> return ActionData.ClearRecentApp
+
+            ActionId.MODIFY_SETTING -> {
+                val oldAction = oldData as? ActionData.ModifySetting
+
+                modifySettingActionBottomSheetState = ModifySettingActionBottomSheetState(
+                    settingType = oldAction?.settingType ?: SettingType.SYSTEM,
+                    settingKey = oldAction?.settingKey ?: "",
+                    value = oldAction?.value ?: "",
+                )
+
+                return null
+            }
         }
     }
 

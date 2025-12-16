@@ -6,12 +6,11 @@ import io.github.sds100.keymapper.base.actions.ActionErrorSnapshot
 import io.github.sds100.keymapper.base.actions.PerformActionsUseCase
 import io.github.sds100.keymapper.base.actions.RepeatMode
 import io.github.sds100.keymapper.base.constraints.DetectConstraintsUseCase
-import io.github.sds100.keymapper.base.keymaps.detection.DetectKeyMapsUseCase
-import io.github.sds100.keymapper.base.keymaps.detection.TriggerKeyMapFromOtherAppsController
+import io.github.sds100.keymapper.base.detection.DetectKeyMapsUseCase
+import io.github.sds100.keymapper.base.detection.TriggerKeyMapFromOtherAppsController
 import io.github.sds100.keymapper.base.trigger.Trigger
 import io.github.sds100.keymapper.base.utils.TestConstraintSnapshot
 import io.github.sds100.keymapper.common.utils.KMError
-import junitparams.JUnitParamsRunner
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,14 +20,12 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 
 @ExperimentalCoroutinesApi
-@RunWith(JUnitParamsRunner::class)
 class TriggerKeyMapFromOtherAppsControllerTest {
 
     companion object {
@@ -100,29 +97,30 @@ class TriggerKeyMapFromOtherAppsControllerTest {
      * #707
      */
     @Test
-    fun `Key map with repeat option, don't repeat when triggered if repeat until released`() = runTest(testDispatcher) {
-        // GIVEN
-        val action =
-            Action(
-                data = ActionData.InputKeyEvent(keyCode = 1),
-                repeat = true,
-                repeatMode = RepeatMode.TRIGGER_RELEASED,
+    fun `Key map with repeat option, don't repeat when triggered if repeat until released`() =
+        runTest(testDispatcher) {
+            // GIVEN
+            val action =
+                Action(
+                    data = ActionData.InputKeyEvent(keyCode = 1),
+                    repeat = true,
+                    repeatMode = RepeatMode.TRIGGER_RELEASED,
+                )
+            val keyMap = KeyMap(
+                actionList = listOf(action),
+                trigger = Trigger(triggerFromOtherApps = true),
             )
-        val keyMap = KeyMap(
-            actionList = listOf(action),
-            trigger = Trigger(triggerFromOtherApps = true),
-        )
-        keyMapListFlow.value = listOf(keyMap)
+            keyMapListFlow.value = listOf(keyMap)
 
-        advanceUntilIdle()
+            advanceUntilIdle()
 
-        // WHEN
-        controller.onDetected(keyMap.uid)
-        delay(500)
-        controller.reset() // stop any repeating that might be happening
-        advanceUntilIdle()
+            // WHEN
+            controller.onDetected(keyMap.uid)
+            delay(500)
+            controller.reset() // stop any repeating that might be happening
+            advanceUntilIdle()
 
-        // THEN
-        verify(performActionsUseCase, times(1)).perform(action.data)
-    }
+            // THEN
+            verify(performActionsUseCase, times(1)).perform(action.data)
+        }
 }

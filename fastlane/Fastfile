@@ -32,8 +32,13 @@ lane :production do
 #   Don't create changelog for f-droid because not committing it
 #   File.write("metadata/android/en-US/changelogs/" + version_code + ".txt", whats_new)
 
+    # Check Rust formatting and run tests
+    Dir.chdir("../evdev/src/main/rust/evdev_manager") do
+      sh("cargo fmt --check")
+      sh("cargo test --package evdev_manager_core")
+    end
+
     Dir.chdir("..") do
-      gradle(task: "testDebugUnitTest")
       gradle(task: "testDebugUnitTest")
     end
 
@@ -52,45 +57,54 @@ lane :production do
                     secure_text: true
                    )
 
-#   Do not release a debug build for pro version.
-#   gradle(task: "assembleDebug")
-
 #   Release the free build to GitHub because billing only works if signed by Google Play
     gradle(task: "assembleRelease")
 
     Dir.chdir("..") do
-      gradle(task: "bundleRelease")
+      gradle(task: "app:bundleRelease")
     end
 
-    apk_path_release="app/build/outputs/apk/release/keymapper-foss-" + version_name + ".apk"
+    apk_path_release="app/build/outputs/apk/release/keymapper-" + version_name + "-foss.apk"
 
     # First release to google play so any errors with the descriptions are resolved before
     # creating the git tag.
-#     supply(
-#         aab: "../app/build/outputs/bundle/release/app-pro-release.aab",
-#         track: "internal",
-#         skip_upload_apk: true
-#     )
-#
-#     whats_new = File.read("../app/src/main/assets/whats-new.txt")
-#
-#     github_release = set_github_release(
-#       repository_name: "keymapperorg/KeyMapper",
-#       api_bearer: github_token,
-#       name: version_name,
-#       tag_name: "v" + version_name,
-#       description: whats_new,
-#       commitish: "master",
-#       upload_assets: [apk_path_release],
-#       is_draft: false,
-#       is_prerelease: false
-#     )
+    supply(
+        aab: "../app/build/outputs/bundle/release/app-release.aab",
+        track: "internal",
+        skip_upload_apk: true
+    )
+
+    whats_new = File.read("../base/src/main/assets/whats-new.txt")
+
+    github_release = set_github_release(
+      repository_name: "keymapperorg/KeyMapper",
+      api_bearer: github_token,
+      name: version_name,
+      tag_name: "v" + version_name,
+      description: whats_new,
+      commitish: "master",
+      upload_assets: [apk_path_release],
+      is_draft: false,
+      is_prerelease: false
+    )
 end
 
 desc "Create and deploy internal testing release"
 lane :internal do
     version_code = get_properties_value(key: "VERSION_CODE", path: "./app/version.properties")
     version_name = get_properties_value(key: "VERSION_NAME", path: "./app/version.properties")
+
+    # Check Rust formatting and run tests
+    Dir.chdir("../evdev/src/main/rust/evdev_manager") do
+      sh("cargo fmt --check")
+      sh("cargo test --package evdev_manager_core")
+    end
+
+    Dir.chdir("..") do
+      gradle(task: "ktlintFormat")
+      gradle(task: "ktlintCheck")
+      gradle(task: "testDebugUnitTest")
+    end
 
 #   Don't create changelog for f-droid because not committing it
 #   File.write("metadata/android/en-US/changelogs/" + version_code + ".txt", whats_new)
@@ -105,15 +119,7 @@ lane :internal do
                     secure_text: true
                    )
 
-#   Do not release a debug build for pro version.
-#   gradle(task: "assembleDebug")
-
-
     Dir.chdir("..") do
-  #   Release the free build to GitHub because billing only works if signed by Google Play
-      gradle(task: "ktlintFormat")
-      gradle(task: "ktlintCheck")
-      gradle(task: "testDebugUnitTest")
       gradle(task: "app:bundleRelease")
     end
 

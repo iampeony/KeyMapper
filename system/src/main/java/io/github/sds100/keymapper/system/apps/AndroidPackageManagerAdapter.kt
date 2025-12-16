@@ -2,6 +2,7 @@ package io.github.sds100.keymapper.system.apps
 
 import android.annotation.SuppressLint
 import android.app.ActivityOptions
+import android.app.KeyguardManager
 import android.app.PendingIntent
 import android.content.ActivityNotFoundException
 import android.content.BroadcastReceiver
@@ -19,6 +20,7 @@ import android.os.RemoteException
 import android.os.TransactionTooLargeException
 import android.provider.MediaStore
 import android.provider.Settings
+import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.content.pm.PackageInfoCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -27,6 +29,9 @@ import io.github.sds100.keymapper.common.utils.KMResult
 import io.github.sds100.keymapper.common.utils.State
 import io.github.sds100.keymapper.common.utils.Success
 import io.github.sds100.keymapper.common.utils.success
+import java.io.IOException
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -36,9 +41,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.IOException
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 class AndroidPackageManagerAdapter @Inject constructor(
@@ -47,6 +49,10 @@ class AndroidPackageManagerAdapter @Inject constructor(
 ) : PackageManagerAdapter {
     private val ctx: Context = context.applicationContext
     private val packageManager: PackageManager = ctx.packageManager
+
+    private val keyguardManager: KeyguardManager by lazy {
+        ctx.getSystemService(KeyguardManager::class.java)
+    }
 
     private val fetchPackages: MutableSharedFlow<Unit> = MutableSharedFlow()
     override val onPackagesChanged: MutableSharedFlow<Unit> = MutableSharedFlow()
@@ -62,7 +68,7 @@ class AndroidPackageManagerAdapter @Inject constructor(
                 Intent.ACTION_PACKAGE_ADDED,
                 Intent.ACTION_PACKAGE_REMOVED,
                 Intent.ACTION_PACKAGE_REPLACED,
-                -> {
+                    -> {
                     coroutineScope.launch {
                         fetchPackages.emit(Unit)
                         onPackagesChanged.emit(Unit)
@@ -228,15 +234,16 @@ class AndroidPackageManagerAdapter @Inject constructor(
         }
     }
 
-    @SuppressLint("UnspecifiedImmutableFlag") // only specify the flag on SDK 23+. SDK 31 is first to enforce it.
+    // only specify the flag on SDK 23+. SDK 31 is first to enforce it.
+    @SuppressLint("UnspecifiedImmutableFlag")
     override fun openApp(packageName: String): KMResult<*> {
         val leanbackIntent = packageManager.getLeanbackLaunchIntentForPackage(packageName)
         val normalIntent = packageManager.getLaunchIntentForPackage(packageName)
 
-        val intent = leanbackIntent ?: normalIntent
+        val packageIntent = leanbackIntent ?: normalIntent
 
         // intent = null if the app doesn't exist
-        if (intent == null) {
+        if (packageIntent == null) {
             try {
                 val appInfo = ctx.packageManager.getApplicationInfo(packageName, 0)
 
@@ -250,11 +257,17 @@ class AndroidPackageManagerAdapter @Inject constructor(
                 return KMError.AppNotFound(packageName)
             }
         } else {
-            val pendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                PendingIntent.getActivity(ctx, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+            // Use a trampoline activity that will dismiss the keyguard when it is locked.
+            val intent = if (keyguardManager.isKeyguardLocked) {
+                Intent(ctx, TrampolineActivity::class.java).apply {
+                    putExtra(TrampolineActivity.EXTRA_INTENT, packageIntent)
+                }
             } else {
-                PendingIntent.getActivity(ctx, 0, intent, 0)
+                packageIntent
             }
+
+            val pendingIntent =
+                PendingIntent.getActivity(ctx, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 val bundle = ActivityOptions.makeBasic()
@@ -430,5 +443,10 @@ class AndroidPackageManagerAdapter @Inject constructor(
         } catch (e: Exception) {
             return null
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    override fun getInstallSourcePackageName(): String? {
+        return packageManager.getInstallSourceInfo(ctx.packageName).installingPackageName
     }
 }

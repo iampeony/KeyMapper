@@ -22,6 +22,8 @@ import io.github.sds100.keymapper.system.display.AndroidDisplayAdapter
 import io.github.sds100.keymapper.system.display.DisplayAdapter
 import io.github.sds100.keymapper.system.files.AndroidFileAdapter
 import io.github.sds100.keymapper.system.files.FileAdapter
+import io.github.sds100.keymapper.system.foldable.AndroidFoldableAdapter
+import io.github.sds100.keymapper.system.foldable.FoldableAdapter
 import io.github.sds100.keymapper.system.inputmethod.AndroidInputMethodAdapter
 import io.github.sds100.keymapper.system.inputmethod.InputMethodAdapter
 import io.github.sds100.keymapper.system.intents.IntentAdapter
@@ -51,7 +53,10 @@ import io.github.sds100.keymapper.system.ringtones.AndroidRingtoneAdapter
 import io.github.sds100.keymapper.system.ringtones.RingtoneAdapter
 import io.github.sds100.keymapper.system.root.SuAdapter
 import io.github.sds100.keymapper.system.root.SuAdapterImpl
+import io.github.sds100.keymapper.system.settings.AndroidSettingsAdapter
+import io.github.sds100.keymapper.system.settings.SettingsAdapter
 import io.github.sds100.keymapper.system.shell.ShellAdapter
+import io.github.sds100.keymapper.system.shell.StandardShellAdapter
 import io.github.sds100.keymapper.system.shizuku.ShizukuAdapter
 import io.github.sds100.keymapper.system.shizuku.ShizukuAdapterImpl
 import io.github.sds100.keymapper.system.url.AndroidOpenUrlAdapter
@@ -79,7 +84,9 @@ abstract class SystemHiltModule {
 
     @Singleton
     @Binds
-    abstract fun providePackageManagerAdapter(impl: AndroidPackageManagerAdapter): PackageManagerAdapter
+    abstract fun providePackageManagerAdapter(
+        impl: AndroidPackageManagerAdapter,
+    ): PackageManagerAdapter
 
     @Singleton
     @Binds
@@ -104,6 +111,10 @@ abstract class SystemHiltModule {
     @Singleton
     @Binds
     abstract fun provideFileAdapter(impl: AndroidFileAdapter): FileAdapter
+
+    @Singleton
+    @Binds
+    abstract fun provideFoldableAdapter(impl: AndroidFoldableAdapter): FoldableAdapter
 
     @Singleton
     @Binds
@@ -167,7 +178,7 @@ abstract class SystemHiltModule {
 
     @Singleton
     @Binds
-    abstract fun provideShellAdapter(impl: Shell): ShellAdapter
+    abstract fun provideShellAdapter(impl: StandardShellAdapter): ShellAdapter
 
     @Singleton
     @Binds
@@ -175,9 +186,17 @@ abstract class SystemHiltModule {
 
     @Singleton
     @Binds
-    abstract fun provideNotificationReceiverAdapter(impl: NotificationReceiverAdapterImpl): NotificationReceiverAdapter
+    abstract fun provideNotificationReceiverAdapter(
+        impl: NotificationReceiverAdapterImpl,
+    ): NotificationReceiverAdapter
 
     @Singleton
     @Binds
-    abstract fun provideSystemFeatureAdapter(impl: AndroidSystemFeatureAdapter): SystemFeatureAdapter
+    abstract fun provideSystemFeatureAdapter(
+        impl: AndroidSystemFeatureAdapter,
+    ): SystemFeatureAdapter
+
+    @Singleton
+    @Binds
+    abstract fun provideSettingsAdapter(impl: AndroidSettingsAdapter): SettingsAdapter
 }

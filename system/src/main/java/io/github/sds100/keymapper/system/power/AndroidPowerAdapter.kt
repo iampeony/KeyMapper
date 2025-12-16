@@ -5,20 +5,18 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
-import android.os.Build
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 @Singleton
-class AndroidPowerAdapter @Inject constructor(
-    @ApplicationContext private val context: Context
-) : PowerAdapter {
+class AndroidPowerAdapter @Inject constructor(@ApplicationContext private val context: Context) :
+    PowerAdapter {
     private val ctx: Context = context.applicationContext
     private val batteryManager: BatteryManager by lazy { ctx.getSystemService()!! }
 
@@ -54,10 +52,5 @@ class AndroidPowerAdapter @Inject constructor(
         )
     }
 
-    private fun getIsCharging(): Boolean = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-        batteryManager.isCharging
-    } else {
-        // no other way to synchronously get the information
-        false
-    }
+    private fun getIsCharging(): Boolean = batteryManager.isCharging
 }

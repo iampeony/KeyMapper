@@ -3,7 +3,7 @@ package io.github.sds100.keymapper.data
 object PreferenceDefaults {
     const val DARK_THEME = "2"
 
-    const val SHOW_TOAST_WHEN_AUTO_CHANGE_IME = true
+    const val SHOW_TOAST_WHEN_AUTO_CHANGE_IME = false
     const val CHANGE_IME_ON_INPUT_FOCUS = false
 
     const val FORCE_VIBRATE = false
@@ -14,4 +14,12 @@ object PreferenceDefaults {
     const val REPEAT_RATE = 50
     const val SEQUENCE_TRIGGER_TIMEOUT = 1000
     const val HOLD_DOWN_DURATION = 1000
+
+    const val PRO_MODE_INTERACTIVE_SETUP_ASSISTANT = true
+
+    const val PRO_MODE_KEEP_ALIVE = true
+
+    // It is false by default and the first time they turn on the system bridge,
+    // the preference will be set to true.
+    const val KEY_EVENT_ACTIONS_USE_SYSTEM_BRIDGE = false
 }

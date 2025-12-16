@@ -7,13 +7,13 @@ import io.github.sds100.keymapper.common.utils.valueOrNull
 import io.github.sds100.keymapper.common.utils.withFlag
 import io.github.sds100.keymapper.data.entities.AssistantTriggerKeyEntity
 import io.github.sds100.keymapper.data.entities.EntityExtra
+import io.github.sds100.keymapper.data.entities.EvdevTriggerKeyEntity
 import io.github.sds100.keymapper.data.entities.FingerprintTriggerKeyEntity
 import io.github.sds100.keymapper.data.entities.FloatingButtonEntityWithLayout
 import io.github.sds100.keymapper.data.entities.FloatingButtonKeyEntity
-import io.github.sds100.keymapper.data.entities.KeyCodeTriggerKeyEntity
+import io.github.sds100.keymapper.data.entities.KeyEventTriggerKeyEntity
 import io.github.sds100.keymapper.data.entities.TriggerEntity
 import io.github.sds100.keymapper.data.entities.getData
-import io.github.sds100.keymapper.system.inputevents.InputEventUtils
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -22,41 +22,42 @@ data class Trigger(
     val mode: TriggerMode = TriggerMode.Undefined,
     val vibrate: Boolean = false,
     val longPressDoubleVibration: Boolean = false,
-    val screenOffTrigger: Boolean = false,
     val longPressDelay: Int? = null,
     val doublePressDelay: Int? = null,
     val vibrateDuration: Int? = null,
     val sequenceTriggerTimeout: Int? = null,
     val triggerFromOtherApps: Boolean = false,
     val showToast: Boolean = false,
+
+    /**
+     * This is true if the user turned on the "screen off" option in versions prior to v4.0.0. This
+     * option has now been removed and replaced with the system bridge but they will have to
+     * record their keys again and create an EvdevTriggerKey. We can not handle this migration
+     * automatically because we could grab the wrong evdev device or if there is a bug
+     * severely mess up their device without them knowing the cause.
+     */
+    val legacyDetectScreenOff: Boolean = false,
 ) {
     fun isVibrateAllowed(): Boolean = true
 
     fun isChangingVibrationDurationAllowed(): Boolean = vibrate || longPressDoubleVibration
 
-    fun isChangingLongPressDelayAllowed(): Boolean = keys.any { key -> key.clickType == ClickType.LONG_PRESS }
-
-    fun isChangingDoublePressDelayAllowed(): Boolean = keys.any { key -> key.clickType == ClickType.DOUBLE_PRESS }
-
-    fun isLongPressDoubleVibrationAllowed(): Boolean = (keys.size == 1 || (mode is TriggerMode.Parallel)) &&
-        keys.getOrNull(0)?.clickType == ClickType.LONG_PRESS
-
-    /**
-     * Must check that it is not empty otherwise it would be true from the "all" check.
-     * It is not allowed if the key is an assistant button because it is assumed to be true
-     * anyway.
-     */
-    fun isDetectingWhenScreenOffAllowed(): Boolean {
-        return keys.isNotEmpty() &&
-            keys.all {
-                it is KeyCodeTriggerKey &&
-                    InputEventUtils.canDetectKeyWhenScreenOff(
-                        it.keyCode,
-                    )
-            }
+    fun isChangingLongPressDelayAllowed(): Boolean = keys.any { key ->
+        key.clickType ==
+            ClickType.LONG_PRESS
     }
 
-    fun isChangingSequenceTriggerTimeoutAllowed(): Boolean = keys.isNotEmpty() && keys.size > 1 && mode is TriggerMode.Sequence
+    fun isChangingDoublePressDelayAllowed(): Boolean = keys.any { key ->
+        key.clickType ==
+            ClickType.DOUBLE_PRESS
+    }
+
+    fun isLongPressDoubleVibrationAllowed(): Boolean =
+        (keys.size == 1 || (mode is TriggerMode.Parallel)) &&
+            keys.getOrNull(0)?.clickType == ClickType.LONG_PRESS
+
+    fun isChangingSequenceTriggerTimeoutAllowed(): Boolean =
+        keys.isNotEmpty() && keys.size > 1 && mode is TriggerMode.Sequence
 
     fun updateFloatingButtonData(buttons: List<FloatingButtonEntityWithLayout>): Trigger {
         val newTriggerKeys = keys.map { key ->
@@ -89,7 +90,7 @@ object TriggerEntityMapper {
         val keys = entity.keys.map { key ->
             when (key) {
                 is AssistantTriggerKeyEntity -> AssistantTriggerKey.fromEntity(key)
-                is KeyCodeTriggerKeyEntity -> KeyCodeTriggerKey.fromEntity(
+                is KeyEventTriggerKeyEntity -> KeyEventTriggerKey.fromEntity(
                     key,
                 )
                 is FloatingButtonKeyEntity -> {
@@ -98,15 +99,19 @@ object TriggerEntityMapper {
                 }
 
                 is FingerprintTriggerKeyEntity -> FingerprintTriggerKey.fromEntity(key)
+                is EvdevTriggerKeyEntity -> EvdevTriggerKey.fromEntity(key)
             }
         }
 
         val mode = when {
             entity.mode == TriggerEntity.SEQUENCE && keys.size > 1 -> TriggerMode.Sequence
-            entity.mode == TriggerEntity.PARALLEL && keys.size > 1 -> TriggerMode.Parallel(keys[0].clickType)
+            entity.mode == TriggerEntity.PARALLEL && keys.size > 1 -> TriggerMode.Parallel(
+                keys[0].clickType,
+            )
             else -> TriggerMode.Undefined
         }
 
+        @Suppress("DEPRECATION")
         return Trigger(
             keys = keys,
             mode = mode,
@@ -125,19 +130,25 @@ object TriggerEntityMapper {
             vibrateDuration = entity.extras.getData(TriggerEntity.EXTRA_VIBRATION_DURATION)
                 .valueOrNull()?.toIntOrNull(),
 
-            sequenceTriggerTimeout = entity.extras.getData(TriggerEntity.EXTRA_SEQUENCE_TRIGGER_TIMEOUT)
+            sequenceTriggerTimeout = entity.extras.getData(
+                TriggerEntity.EXTRA_SEQUENCE_TRIGGER_TIMEOUT,
+            )
                 .valueOrNull()?.toIntOrNull(),
 
             triggerFromOtherApps = entity.flags.hasFlag(TriggerEntity.TRIGGER_FLAG_FROM_OTHER_APPS),
             showToast = entity.flags.hasFlag(TriggerEntity.TRIGGER_FLAG_SHOW_TOAST),
-            screenOffTrigger = entity.flags.hasFlag(TriggerEntity.TRIGGER_FLAG_SCREEN_OFF_TRIGGERS),
+            legacyDetectScreenOff = entity.flags.hasFlag(
+                TriggerEntity.TRIGGER_FLAG_SCREEN_OFF_TRIGGERS,
+            ),
         )
     }
 
     fun toEntity(trigger: Trigger): TriggerEntity {
         val extras = mutableListOf<EntityExtra>()
 
-        if (trigger.isChangingSequenceTriggerTimeoutAllowed() && trigger.sequenceTriggerTimeout != null) {
+        if (trigger.isChangingSequenceTriggerTimeoutAllowed() &&
+            trigger.sequenceTriggerTimeout != null
+        ) {
             extras.add(
                 EntityExtra(
                     TriggerEntity.EXTRA_SEQUENCE_TRIGGER_TIMEOUT,
@@ -189,10 +200,6 @@ object TriggerEntityMapper {
             flags = flags.withFlag(TriggerEntity.TRIGGER_FLAG_LONG_PRESS_DOUBLE_VIBRATION)
         }
 
-        if (trigger.isDetectingWhenScreenOffAllowed() && trigger.screenOffTrigger) {
-            flags = flags.withFlag(TriggerEntity.TRIGGER_FLAG_SCREEN_OFF_TRIGGERS)
-        }
-
         if (trigger.triggerFromOtherApps) {
             flags = flags.withFlag(TriggerEntity.TRIGGER_FLAG_FROM_OTHER_APPS)
         }
@@ -201,14 +208,22 @@ object TriggerEntityMapper {
             flags = flags.withFlag(TriggerEntity.TRIGGER_FLAG_SHOW_TOAST)
         }
 
+        // Still persist this so that any errors do not disappear when the key map is saved
+        // for whatever reason.
+        if (trigger.legacyDetectScreenOff) {
+            @Suppress("DEPRECATION")
+            flags = flags.withFlag(TriggerEntity.TRIGGER_FLAG_SCREEN_OFF_TRIGGERS)
+        }
+
         val keys = trigger.keys.map { key ->
             when (key) {
                 is AssistantTriggerKey -> AssistantTriggerKey.toEntity(key)
-                is KeyCodeTriggerKey -> KeyCodeTriggerKey.toEntity(
+                is KeyEventTriggerKey -> KeyEventTriggerKey.toEntity(
                     key,
                 )
                 is FloatingButtonKey -> FloatingButtonKey.toEntity(key)
                 is FingerprintTriggerKey -> FingerprintTriggerKey.toEntity(key)
+                is EvdevTriggerKey -> EvdevTriggerKey.toEntity(key)
             }
         }
 
