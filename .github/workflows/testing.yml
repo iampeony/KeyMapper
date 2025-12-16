@@ -1,9 +1,10 @@
 name: Testing - build and release app
 
 on:
-  push:
-    branches:
-      - 'develop'
+ workflow_dispatch:
+  # push:
+  #   branches:
+  #     - 'develop'
 
 concurrency:
   group: ${{ github.workflow }}
