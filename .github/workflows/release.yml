@@ -49,7 +49,6 @@ jobs:
           cmdline-tools-version: "11076708"
           build-tools-version: "34.0.0"
 
-      # 仅保留Android工具PATH配置（移除zipalign验证后无需额外处理）
       - name: Add Android tools to PATH
         run: |
           echo "$ANDROID_HOME/build-tools/34.0.0" >> $GITHUB_PATH
@@ -135,17 +134,27 @@ jobs:
           path: ${{ steps.find_apk.outputs.apk_path }}
           retention-days: 30
 
-      # 核心优化：完善Release信息（Build Time格式化 + 补充更多上下文）
-      - name: Generate formatted build time
-        id: build_time
+      # 修复：提前处理所有需要格式化的变量（Commit哈希截取、时间格式化、提交信息）
+      - name: Prepare release metadata
+        id: release_meta
         run: |
-          # 格式化时间为 年-月-日 时:分:秒（UTC+8）
+          # 截取Commit哈希前7位
+          SHORT_SHA=${{ github.sha }}
+          SHORT_SHA=${SHORT_SHA:0:7}
+          # 格式化构建时间（UTC+8）
           FORMATTED_TIME=$(date -d "${{ github.run_started_at }}" +"%Y-%m-%d %H:%M:%S" -u | awk '{print $1 " " $2 " (UTC)"}')
-          # 补充提交信息
+          # 获取提交信息
           COMMIT_MSG=$(git log -1 --pretty=format:"%s" ${{ github.sha }})
+          # 获取分支名
+          BRANCH_NAME=${{ github.ref_name }}
+          
+          # 输出变量
+          echo "short_sha=$SHORT_SHA" >> $GITHUB_OUTPUT
           echo "formatted_time=$FORMATTED_TIME" >> $GITHUB_OUTPUT
           echo "commit_msg=$COMMIT_MSG" >> $GITHUB_OUTPUT
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
 
+      # 修复：使用提前处理的变量，避免表达式嵌套错误
       - name: Create GitHub Release
         id: create_release
         uses: actions/create-release@v1
@@ -153,14 +162,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: v${{ github.run_number }}
-          release_name: Release v${{ github.run_number }} (${{ github.sha }:0:7})  # 缩短Commit哈希
+          release_name: Release v${{ github.run_number }} (${{ steps.release_meta.outputs.short_sha }})
           body: |
             ## 🚀 Automated Release Build
             - **Build Number**: ${{ github.run_number }}
-            - **Commit Hash**: ${{ github.sha }}
-            - **Commit Message**: ${{ steps.build_time.outputs.commit_msg }}
-            - **Build Time**: ${{ steps.build_time.outputs.formatted_time }}
-            - **Branch**: ${{ github.ref_name }}
+            - **Commit Hash**: ${{ github.sha }} (${{ steps.release_meta.outputs.short_sha }})
+            - **Commit Message**: ${{ steps.release_meta.outputs.commit_msg }}
+            - **Build Time**: ${{ steps.release_meta.outputs.formatted_time }}
+            - **Branch**: ${{ steps.release_meta.outputs.branch_name }}
             - **APK Name**: ${{ steps.find_apk.outputs.apk_name }}
           draft: false
           prerelease: false
